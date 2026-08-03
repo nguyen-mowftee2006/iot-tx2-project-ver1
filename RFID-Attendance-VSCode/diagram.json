@@ -251,7 +251,7 @@
     ],
     [
       "servo1:PWM",
-      "esp:13",
+      "esp:27",
       "orange",
       [
         "h0"

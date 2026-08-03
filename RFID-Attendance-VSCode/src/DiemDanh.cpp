@@ -1,7 +1,6 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <WiFiClient.h>
-#include <WiFiClientSecure.h>
 #include <HTTPClient.h>
 
 #include "CauHinh.h"
@@ -223,7 +222,7 @@ bool ketNoiWiFi() {
 }
 
 
-// Gửi UID tới Google Apps Script hoặc relay local
+// Gửi UID tới relay.py, sau đó relay.py sẽ gọi Apps Script
 KetQuaDiemDanh guiDiemDanh(
   const String &uid
 ) {
@@ -249,12 +248,7 @@ KetQuaDiemDanh guiDiemDanh(
     return ketQua;
   }
 
-  String urlGoogle =
-    String(GOOGLE_APPS_SCRIPT_URL)
-    + "?uid="
-    + uidChuan;
-
-  String urlRelay =
+  String url =
     String(RELAY_URL)
     + "?uid="
     + uidChuan;
@@ -264,7 +258,7 @@ KetQuaDiemDanh guiDiemDanh(
   );
 
   Serial.println(
-    "Dang gui UID toi Google Apps Script"
+    "Dang gui UID toi relay"
   );
 
   Serial.println(
@@ -272,21 +266,16 @@ KetQuaDiemDanh guiDiemDanh(
   );
 
   Serial.println(
-    "URL: " + urlGoogle
+    "URL: " + url
   );
 
   hienThiDangXuLy(
     uidChuan
   );
 
-  String noiDung = "";
-  int maHTTP = 0;
-  bool daNhanPhanHoi = false;
-
-  WiFiClientSecure client;
+  WiFiClient client;
   HTTPClient http;
 
-  client.setInsecure();
   client.setTimeout(
     HTTP_RESPONSE_TIMEOUT
   );
@@ -300,111 +289,48 @@ KetQuaDiemDanh guiDiemDanh(
   );
 
   http.setReuse(false);
-  http.setFollowRedirects(
-    HTTPC_STRICT_FOLLOW_REDIRECTS
-  );
 
-  if (!http.begin(client, urlGoogle)) {
+  if (!http.begin(client, url)) {
+    ketQua.trangThai =
+      TT_LOI_HTTP;
+
     ketQua.thongBao =
       "http.begin that bai";
-  }
-  else {
-    maHTTP = http.GET();
-    ketQua.maHTTP = maHTTP;
 
-    Serial.print(
-      "Ma HTTP Google: "
-    );
-    Serial.println(maHTTP);
-
-    if (maHTTP > 0) {
-      noiDung = http.getString();
-      http.end();
-
-      Serial.println(
-        "Phan hoi Google:"
-      );
-      Serial.println(noiDung);
-
-      if (maHTTP >= 200 && maHTTP < 300) {
-        daNhanPhanHoi = true;
-      }
-    }
-    else {
-      ketQua.thongBao =
-        http.errorToString(maHTTP);
-      http.end();
-    }
+    return ketQua;
   }
 
-  if (!daNhanPhanHoi) {
-    Serial.println(
-      "Google khong tra ve ket qua hop le, chuyen sang relay local"
-    );
+  int maHTTP = http.GET();
+  ketQua.maHTTP = maHTTP;
 
-    WiFiClient clientRelay;
-    HTTPClient httpRelay;
+  Serial.print(
+    "Ma HTTP: "
+  );
+  Serial.println(maHTTP);
 
-    clientRelay.setTimeout(
-      HTTP_RESPONSE_TIMEOUT
-    );
+  if (maHTTP <= 0) {
+    ketQua.trangThai =
+      TT_LOI_SERVER;
 
-    httpRelay.setConnectTimeout(
-      HTTP_CONNECT_TIMEOUT
-    );
-
-    httpRelay.setTimeout(
-      HTTP_RESPONSE_TIMEOUT
-    );
-
-    httpRelay.setReuse(false);
-    httpRelay.setFollowRedirects(
-      HTTPC_STRICT_FOLLOW_REDIRECTS
-    );
-
-    if (!httpRelay.begin(clientRelay, urlRelay)) {
-      ketQua.trangThai =
-        TT_LOI_HTTP;
-
-      ketQua.thongBao =
-        "http.begin that bai";
-
-      return ketQua;
-    }
-
-    maHTTP = httpRelay.GET();
-    ketQua.maHTTP = maHTTP;
-
-    Serial.print(
-      "Ma HTTP Relay: "
-    );
-    Serial.println(maHTTP);
-
-    if (maHTTP <= 0) {
-      ketQua.trangThai =
-        TT_LOI_SERVER;
-
-      ketQua.thongBao =
-        httpRelay.errorToString(maHTTP);
-
-      Serial.println(
-        "Loi HTTP: "
-        + ketQua.thongBao
-      );
-
-      httpRelay.end();
-
-      return ketQua;
-    }
-
-    noiDung = httpRelay.getString();
-    httpRelay.end();
+    ketQua.thongBao =
+      http.errorToString(maHTTP);
 
     Serial.println(
-      "Phan hoi relay:"
+      "Loi HTTP: "
+      + ketQua.thongBao
     );
-    Serial.println(noiDung);
+
+    http.end();
+    return ketQua;
   }
+
+  String noiDung = http.getString();
+  http.end();
+
+  Serial.println(
+    "Phan hoi relay:"
+  );
+  Serial.println(noiDung);
 
   ketQua.trangThai =
     layGiaTriJSON(noiDung, "status");
@@ -468,20 +394,13 @@ void xuLyKetQua(
     keuThanhCong();
     delay(250);
 
-    hienThiOLED(
-      "CUA DANG MO",
-      "",
-      "VUI LONG CHO...",
-      ""
-    );
-
     moCua();
     hienThiCho();
 
     return;
   }
 
-  // Đã điểm danh nhưng vẫn là thẻ hợp lệ
+  // Đã điểm danh rồi, giữ relay tắt
   if (trangThai == TT_DA_DIEM_DANH) {
     Serial.println(
       "=> DA DIEM DANH"
@@ -496,13 +415,6 @@ void xuLyKetQua(
 
     keuDaDiemDanh();
     delay(250);
-
-    hienThiOLED(
-      "CUA DANG MO",
-      "",
-      "VUI LONG CHO...",
-      ""
-    );
 
     moCua();
     hienThiCho();

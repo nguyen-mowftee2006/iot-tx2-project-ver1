@@ -11,7 +11,6 @@ static bool servoSanSang = false;
 static int gocHienTai = GOC_DONG;
 
 
-// Quay servo từ từ
 static void quayServoTuTu(
   int gocBatDau,
   int gocKetThuc
@@ -20,29 +19,47 @@ static void quayServoTuTu(
     return;
   }
 
-  if (gocBatDau < gocKetThuc) {
-    for (
-      int goc = gocBatDau;
-      goc <= gocKetThuc;
-      goc += BUOC_SERVO
-    ) {
-      thanhChan.write(goc);
-      delay(TRE_SERVO);
-    }
-  }
-  else {
-    for (
-      int goc = gocBatDau;
-      goc >= gocKetThuc;
-      goc -= BUOC_SERVO
-    ) {
-      thanhChan.write(goc);
-      delay(TRE_SERVO);
-    }
-  }
-
   thanhChan.write(gocKetThuc);
   gocHienTai = gocKetThuc;
+}
+
+
+static bool khoiTaoServo() {
+  const uint8_t cacPin[] = {
+    SERVO_PIN,
+    27,
+    14
+  };
+
+  for (uint8_t i = 0; i < sizeof(cacPin) / sizeof(cacPin[0]); i++) {
+    int kenhServo = thanhChan.attach(
+      cacPin[i],
+      XUNG_SERVO_MIN,
+      XUNG_SERVO_MAX
+    );
+
+    if (kenhServo >= 0 && thanhChan.attached()) {
+      servoSanSang = true;
+      thanhChan.write(GOC_DONG);
+      gocHienTai = GOC_DONG;
+
+      Serial.print("Khoi tao servo thanh cong tren pin ");
+      Serial.print(cacPin[i]);
+      Serial.print(" (channel ");
+      Serial.print(kenhServo);
+      Serial.println(")");
+
+      return true;
+    }
+
+    Serial.print("Servo pin ");
+    Serial.print(cacPin[i]);
+    Serial.println(" khong hoat dong");
+  }
+
+  servoSanSang = false;
+  Serial.println("Khong khoi tao duoc servo");
+  return false;
 }
 
 
@@ -72,44 +89,21 @@ void khoiTaoThietBi() {
     RELAY_TAT
   );
 
-  // Servo
-  thanhChan.setPeriodHertz(
-    TAN_SO_SERVO
-  );
+  thanhChan.setPeriodHertz(TAN_SO_SERVO);
+  khoiTaoServo();
 
-  int kenhServo = thanhChan.attach(
-    SERVO_PIN,
-    XUNG_SERVO_MIN,
-    XUNG_SERVO_MAX
-  );
-
-  if (kenhServo > 0) {
-    servoSanSang = true;
-
-    thanhChan.write(
-      GOC_DONG
-    );
-
+  if (servoSanSang) {
+    thanhChan.write(GOC_DONG);
     gocHienTai = GOC_DONG;
-
-    Serial.println(
-      "Khoi tao servo thanh cong"
-    );
   }
-  else {
-    servoSanSang = false;
 
-    Serial.println(
-      "Khong khoi tao duoc servo"
-    );
-  }
+  digitalWrite(
+    RELAY_PIN,
+    RELAY_TAT
+  );
 
   Serial.println(
     "Khoi tao relay va buzzer thanh cong"
-  );
-
-  Serial.println(
-    "=> CUA DANG DONG"
   );
 }
 
@@ -121,73 +115,22 @@ void dongCua() {
     RELAY_TAT
   );
 
-  if (
-    servoSanSang &&
-    gocHienTai != GOC_DONG
-  ) {
-    quayServoTuTu(
-      gocHienTai,
-      GOC_DONG
-    );
+  if (servoSanSang && gocHienTai != GOC_DONG) {
+    quayServoTuTu(gocHienTai, GOC_DONG);
   }
-
-  Serial.println(
-    "=> CUA DA DONG"
-  );
 }
 
 
-// Mở cửa rồi tự đóng lại
+// Mở cửa và giữ ở trạng thái mở
 void moCua() {
-  Serial.println(
-    "=> DANG MO CUA"
-  );
-
   digitalWrite(
     RELAY_PIN,
     RELAY_BAT
   );
 
-  if (
-    servoSanSang &&
-    gocHienTai != GOC_MO
-  ) {
-    quayServoTuTu(
-      gocHienTai,
-      GOC_MO
-    );
+  if (servoSanSang && gocHienTai != GOC_MO) {
+    quayServoTuTu(gocHienTai, GOC_MO);
   }
-
-  Serial.println(
-    "=> CUA DA MO"
-  );
-
-  delay(
-    THOI_GIAN_MO_CUA
-  );
-
-  Serial.println(
-    "=> DANG DONG CUA"
-  );
-
-  if (
-    servoSanSang &&
-    gocHienTai != GOC_DONG
-  ) {
-    quayServoTuTu(
-      gocHienTai,
-      GOC_DONG
-    );
-  }
-
-  digitalWrite(
-    RELAY_PIN,
-    RELAY_TAT
-  );
-
-  Serial.println(
-    "=> CUA DA DONG"
-  );
 }
 
 

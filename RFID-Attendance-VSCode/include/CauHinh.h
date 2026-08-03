@@ -13,7 +13,7 @@ constexpr uint8_t SPI_MISO_PIN = 19;
 constexpr uint8_t SPI_MOSI_PIN = 23;
 
 // Thời gian tránh đọc lại cùng một thẻ
-constexpr uint16_t TRE_DOC_LAI_THE = 250;
+constexpr uint16_t TRE_DOC_LAI_THE = 300;
 
 
 // ==================== OLED SSD1306 ====================
@@ -42,6 +42,7 @@ constexpr uint8_t RELAY_TAT = HIGH;
 
 // ==================== SERVO BARIE ====================
 
+// Khôi phục lại cấu hình servo từ phiên bản trước để sát với môi trường hoạt động cũ.
 constexpr uint8_t SERVO_PIN = 13;
 
 constexpr int GOC_DONG = 0;
@@ -55,7 +56,7 @@ constexpr int BUOC_SERVO = 3;
 constexpr int TRE_SERVO = 15;
 
 // Thời gian giữ barie mở
-constexpr uint16_t THOI_GIAN_MO_CUA = 1000;
+constexpr uint16_t THOI_GIAN_MO_CUA = 1500;
 
 
 // ==================== WIFI ====================
@@ -64,24 +65,18 @@ constexpr char WIFI_SSID[] = "Wokwi-GUEST";
 constexpr char WIFI_MAT_KHAU[] = "";
 
 constexpr uint8_t WIFI_KENH = 6;
-constexpr uint8_t SO_LAN_THU_WIFI = 15;
+constexpr uint8_t SO_LAN_THU_WIFI = 20;
 constexpr uint16_t TRE_THU_WIFI = 400;
 
-
-// ==================== GOOGLE APPS SCRIPT ====================
-
-constexpr char GOOGLE_APPS_SCRIPT_URL[] =
-  "https://script.google.com/macros/s/"
-  "AKfycbwM4rLqlFTREbY9qLiqZQU5GhXspxh0M-vlNGXzJFHUmtcEcVgSNxBDKxASmV16-_hkAw"
-  "/exec";
 
 // ==================== LOCAL RELAY ====================
 
 constexpr char RELAY_URL[] =
   "http://host.wokwi.internal:3000/";
 
-// ESP32 cần chờ đủ lâu để nhận phản hồi trước khi báo lỗi.
-constexpr uint16_t HTTP_CONNECT_TIMEOUT = 5000;
-constexpr uint16_t HTTP_RESPONSE_TIMEOUT = 12000;
+// Relay có thể phải chờ Google Apps Script lâu hơn một chút.
+// ESP32 cần chờ lâu hơn để tránh báo lỗi sai khi relay vẫn đang xử lý.
+constexpr uint16_t HTTP_CONNECT_TIMEOUT = 10000;
+constexpr uint16_t HTTP_RESPONSE_TIMEOUT = 30000;
 
 #endif
