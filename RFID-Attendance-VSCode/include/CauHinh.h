@@ -13,7 +13,7 @@ constexpr uint8_t SPI_MISO_PIN = 19;
 constexpr uint8_t SPI_MOSI_PIN = 23;
 
 // Thời gian tránh đọc lại cùng một thẻ
-constexpr uint16_t TRE_DOC_LAI_THE = 300;
+constexpr uint16_t TRE_DOC_LAI_THE = 1000;
 
 
 // ==================== OLED SSD1306 ====================
@@ -29,6 +29,9 @@ constexpr int OLED_CAO = 64;
 // ==================== BUZZER ====================
 
 constexpr uint8_t BUZZER_PIN = 25;
+constexpr uint8_t BUZZER_KENH_LEDC = 0;
+constexpr uint8_t BUZZER_DO_PHAN_GIAI = 10;
+constexpr uint16_t BUZZER_TAN_SO_KHOI_TAO = 1000;
 
 
 // ==================== RELAY CỬA ====================
@@ -38,6 +41,9 @@ constexpr uint8_t RELAY_PIN = 26;
 // Relay Wokwi loại NPN, kích ở mức LOW
 constexpr uint8_t RELAY_BAT = LOW;
 constexpr uint8_t RELAY_TAT = HIGH;
+
+// Thời gian giữ cửa mở sau khi điểm danh thành công
+constexpr uint16_t THOI_GIAN_MO_CUA = 3000;
 
 
 // ==================== WIFI ====================

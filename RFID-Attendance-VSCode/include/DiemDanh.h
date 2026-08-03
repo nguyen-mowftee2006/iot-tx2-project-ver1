@@ -7,6 +7,9 @@
 const String TT_THANH_CONG = "DIEM_DANH_THANH_CONG";
 const String TT_DA_DIEM_DANH = "DA_DIEM_DANH";
 const String TT_THE_LOI = "THE_KHONG_HOP_LE";
+const String TT_PHIEN_DA_MO = "PHIEN_DA_MO";
+const String TT_PHIEN_DA_DONG = "PHIEN_DA_DONG";
+const String TT_PHIEN_CHUA_MO = "PHIEN_CHUA_MO";
 const String TT_THIEU_UID = "THIEU_UID";
 const String TT_KHONG_CO_SHEET = "KHONG_TIM_THAY_SHEET";
 

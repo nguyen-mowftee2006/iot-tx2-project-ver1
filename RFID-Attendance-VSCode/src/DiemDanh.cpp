@@ -378,6 +378,92 @@ void xuLyKetQua(
   const String &trangThai =
     ketQua.trangThai;
 
+  // Thẻ giáo viên mở phiên điểm danh
+  if (trangThai == TT_PHIEN_DA_MO) {
+    Serial.println(
+      "=> GIAO VIEN DA MO PHIEN"
+    );
+
+    dongCua();
+
+    hienThiOLED(
+      "THE GIAO VIEN",
+      ketQua.hoTen,
+      "DA MO PHIEN",
+      "MOI QUET THE..."
+    );
+
+    keuBuzzer(
+      2,
+      1500,
+      120,
+      100
+    );
+
+    delay(700);
+    hienThiCho();
+    return;
+  }
+
+  // Thẻ giáo viên đóng phiên điểm danh
+  if (trangThai == TT_PHIEN_DA_DONG) {
+    Serial.println(
+      "=> GIAO VIEN DA DONG PHIEN"
+    );
+
+    dongCua();
+
+    hienThiOLED(
+      "THE GIAO VIEN",
+      ketQua.hoTen,
+      "DA DONG PHIEN",
+      "KET THUC DIEM DANH"
+    );
+
+    keuBuzzer(
+      1,
+      700,
+      450,
+      0
+    );
+
+    delay(700);
+
+    hienThiOLED(
+      "PHIEN CHUA MO",
+      "",
+      "CHO GIAO VIEN",
+      "QUET THE..."
+    );
+
+    return;
+  }
+
+  // Sinh viên quét thẻ khi giáo viên chưa mở phiên
+  if (trangThai == TT_PHIEN_CHUA_MO) {
+    Serial.println(
+      "=> PHIEN CHUA MO"
+    );
+
+    dongCua();
+
+    hienThiOLED(
+      "PHIEN CHUA MO",
+      "",
+      "CHO GIAO VIEN",
+      "QUET THE..."
+    );
+
+    keuBuzzer(
+      2,
+      600,
+      130,
+      100
+    );
+
+    return;
+  }
+
   // Điểm danh thành công
   if (trangThai == TT_THANH_CONG) {
     Serial.println(
@@ -391,11 +477,8 @@ void xuLyKetQua(
       ketQua.lop
     );
 
-    keuThanhCong();
-    delay(250);
-
     moCua();
-    hienThiCho();
+    keuThanhCong();
 
     return;
   }
@@ -413,10 +496,9 @@ void xuLyKetQua(
       ketQua.lop
     );
 
+    dongCua();
     keuDaDiemDanh();
-    delay(250);
-
-    moCua();
+    delay(500);
     hienThiCho();
 
     return;

@@ -12,6 +12,10 @@ void dongCua();
 // Mở cửa
 void moCua();
 
+// Tự đóng cửa khi đã hết thời gian mở
+// Trả về true khi cửa vừa được đóng tự động
+bool capNhatCua();
+
 // Phát âm báo theo thông số
 void keuBuzzer(
   int soLan,

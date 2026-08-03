@@ -13,6 +13,9 @@ MFRC522 rfid(
   RFID_RST_PIN
 );
 
+static String uidLanTruoc = "";
+static unsigned long thoiDiemDocLanTruoc = 0;
+
 
 // Lấy UID từ thẻ RFID
 static String layUID() {
@@ -36,6 +39,20 @@ static String layUID() {
   uid.toUpperCase();
 
   return uid;
+}
+
+
+static bool laLanQuetLap(
+  const String &uid
+) {
+  if (uid != uidLanTruoc) {
+    return false;
+  }
+
+  return (
+    millis() - thoiDiemDocLanTruoc
+    < TRE_DOC_LAI_THE
+  );
 }
 
 
@@ -105,6 +122,10 @@ void setup() {
 
 
 void loop() {
+  if (capNhatCua()) {
+    hienThiCho();
+  }
+
   // Chưa phát hiện thẻ mới
   if (!rfid.PICC_IsNewCardPresent()) {
     delay(10);
@@ -119,6 +140,22 @@ void loop() {
 
   String uid = layUID();
 
+  // Dừng giao tiếp với thẻ hiện tại
+  rfid.PICC_HaltA();
+  rfid.PCD_StopCrypto1();
+
+  if (laLanQuetLap(uid)) {
+    // Gia hạn thời gian chờ nếu thẻ vẫn còn trên đầu đọc
+    thoiDiemDocLanTruoc = millis();
+
+    Serial.println(
+      "Bo qua lan quet trung: " + uid
+    );
+
+    delay(50);
+    return;
+  }
+
   Serial.println();
   Serial.println(
     "=============================="
@@ -132,10 +169,6 @@ void loop() {
     "UID: " + uid
   );
 
-  // Dừng giao tiếp với thẻ hiện tại
-  rfid.PICC_HaltA();
-  rfid.PCD_StopCrypto1();
-
   // Gửi UID tới relay.py
   KetQuaDiemDanh ketQua =
     guiDiemDanh(uid);
@@ -143,6 +176,6 @@ void loop() {
   // Xử lý OLED, buzzer và relay
   xuLyKetQua(ketQua);
 
-  // Tránh đọc lại cùng một thẻ ngay lập tức
-  delay(TRE_DOC_LAI_THE);
+  uidLanTruoc = uid;
+  thoiDiemDocLanTruoc = millis();
 }
