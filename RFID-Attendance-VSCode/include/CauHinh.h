@@ -40,25 +40,6 @@ constexpr uint8_t RELAY_BAT = LOW;
 constexpr uint8_t RELAY_TAT = HIGH;
 
 
-// ==================== SERVO BARIE ====================
-
-// Khôi phục lại cấu hình servo từ phiên bản trước để sát với môi trường hoạt động cũ.
-constexpr uint8_t SERVO_PIN = 13;
-
-constexpr int GOC_DONG = 0;
-constexpr int GOC_MO = 90;
-
-constexpr int TAN_SO_SERVO = 50;
-constexpr int XUNG_SERVO_MIN = 500;
-constexpr int XUNG_SERVO_MAX = 2400;
-
-constexpr int BUOC_SERVO = 3;
-constexpr int TRE_SERVO = 15;
-
-// Thời gian giữ barie mở
-constexpr uint16_t THOI_GIAN_MO_CUA = 1500;
-
-
 // ==================== WIFI ====================
 
 constexpr char WIFI_SSID[] = "Wokwi-GUEST";

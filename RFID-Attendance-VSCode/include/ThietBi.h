@@ -3,13 +3,13 @@
 
 #include <Arduino.h>
 
-// Khởi tạo buzzer, relay và servo
+// Khởi tạo buzzer và relay
 void khoiTaoThietBi();
 
-// Đóng cửa và đưa thanh chắn về vị trí ban đầu
+// Đóng cửa
 void dongCua();
 
-// Mở cửa, giữ trong một khoảng thời gian rồi tự đóng lại
+// Mở cửa
 void moCua();
 
 // Phát âm báo theo thông số

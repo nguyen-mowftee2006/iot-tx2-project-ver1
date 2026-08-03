@@ -80,7 +80,7 @@ void setup() {
   // OLED
   khoiTaoManHinh();
 
-  // Buzzer, relay và servo
+  // Buzzer và relay
   khoiTaoThietBi();
 
   // RFID RC522
@@ -140,7 +140,7 @@ void loop() {
   KetQuaDiemDanh ketQua =
     guiDiemDanh(uid);
 
-  // Xử lý OLED, buzzer, relay và servo
+  // Xử lý OLED, buzzer và relay
   xuLyKetQua(ketQua);
 
   // Tránh đọc lại cùng một thẻ ngay lập tức
