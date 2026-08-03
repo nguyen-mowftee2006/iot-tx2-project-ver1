@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <WiFiClient.h>
+#include <WiFiClientSecure.h>
 #include <HTTPClient.h>
 
 #include "CauHinh.h"
@@ -20,13 +21,12 @@ static String chuanHoaUID(String uid) {
 }
 
 
-// Lấy một giá trị trong chuỗi JSON
+// Lấy một giá trị đơn giản từ chuỗi JSON
 static String layGiaTriJSON(
   const String &json,
   const String &khoa
 ) {
   String mau = "\"" + khoa + "\"";
-
   int viTriKhoa = json.indexOf(mau);
 
   if (viTriKhoa < 0) {
@@ -44,7 +44,6 @@ static String layGiaTriJSON(
 
   int batDau = viTriHaiCham + 1;
 
-  // Bỏ khoảng trắng
   while (
     batDau < json.length() &&
     (
@@ -57,13 +56,12 @@ static String layGiaTriJSON(
     batDau++;
   }
 
-  // Giá trị dạng chuỗi
-  if (
-    batDau < json.length() &&
-    json[batDau] == '"'
-  ) {
-    batDau++;
+  if (batDau >= json.length()) {
+    return "";
+  }
 
+  if (json[batDau] == '"') {
+    batDau++;
     int ketThuc = batDau;
 
     while (ketThuc < json.length()) {
@@ -73,7 +71,6 @@ static String layGiaTriJSON(
       ) {
         break;
       }
-
       ketThuc++;
     }
 
@@ -81,20 +78,14 @@ static String layGiaTriJSON(
       return "";
     }
 
-    String giaTri = json.substring(
-      batDau,
-      ketThuc
-    );
-
+    String giaTri = json.substring(batDau, ketThuc);
     giaTri.replace("\\\"", "\"");
     giaTri.replace("\\n", " ");
     giaTri.replace("\\r", "");
     giaTri.replace("\\\\", "\\");
-
     return giaTri;
   }
 
-  // Giá trị không phải chuỗi
   int ketThuc = batDau;
 
   while (
@@ -105,13 +96,8 @@ static String layGiaTriJSON(
     ketThuc++;
   }
 
-  String giaTri = json.substring(
-    batDau,
-    ketThuc
-  );
-
+  String giaTri = json.substring(batDau, ketThuc);
   giaTri.trim();
-
   return giaTri;
 }
 
@@ -195,6 +181,9 @@ bool ketNoiWiFi() {
     WIFI_STA
   );
 
+  WiFi.setAutoReconnect(true);
+  WiFi.setSleep(false);
+
   WiFi.begin(
     WIFI_SSID,
     WIFI_MAT_KHAU,
@@ -234,7 +223,7 @@ bool ketNoiWiFi() {
 }
 
 
-// Gửi UID tới relay.py
+// Gửi UID tới Google Apps Script hoặc relay local
 KetQuaDiemDanh guiDiemDanh(
   const String &uid
 ) {
@@ -260,7 +249,12 @@ KetQuaDiemDanh guiDiemDanh(
     return ketQua;
   }
 
-  String url =
+  String urlGoogle =
+    String(GOOGLE_APPS_SCRIPT_URL)
+    + "?uid="
+    + uidChuan;
+
+  String urlRelay =
     String(RELAY_URL)
     + "?uid="
     + uidChuan;
@@ -270,7 +264,7 @@ KetQuaDiemDanh guiDiemDanh(
   );
 
   Serial.println(
-    "Dang gui UID toi relay"
+    "Dang gui UID toi Google Apps Script"
   );
 
   Serial.println(
@@ -278,16 +272,21 @@ KetQuaDiemDanh guiDiemDanh(
   );
 
   Serial.println(
-    "URL: " + url
+    "URL: " + urlGoogle
   );
 
   hienThiDangXuLy(
     uidChuan
   );
 
-  WiFiClient client;
+  String noiDung = "";
+  int maHTTP = 0;
+  bool daNhanPhanHoi = false;
+
+  WiFiClientSecure client;
   HTTPClient http;
 
+  client.setInsecure();
   client.setTimeout(
     HTTP_RESPONSE_TIMEOUT
   );
@@ -301,95 +300,129 @@ KetQuaDiemDanh guiDiemDanh(
   );
 
   http.setReuse(false);
+  http.setFollowRedirects(
+    HTTPC_STRICT_FOLLOW_REDIRECTS
+  );
 
-  if (!http.begin(client, url)) {
-    ketQua.trangThai =
-      TT_LOI_HTTP;
-
+  if (!http.begin(client, urlGoogle)) {
     ketQua.thongBao =
       "http.begin that bai";
+  }
+  else {
+    maHTTP = http.GET();
+    ketQua.maHTTP = maHTTP;
 
-    return ketQua;
+    Serial.print(
+      "Ma HTTP Google: "
+    );
+    Serial.println(maHTTP);
+
+    if (maHTTP > 0) {
+      noiDung = http.getString();
+      http.end();
+
+      Serial.println(
+        "Phan hoi Google:"
+      );
+      Serial.println(noiDung);
+
+      if (maHTTP >= 200 && maHTTP < 300) {
+        daNhanPhanHoi = true;
+      }
+    }
+    else {
+      ketQua.thongBao =
+        http.errorToString(maHTTP);
+      http.end();
+    }
   }
 
-  int maHTTP = http.GET();
+  if (!daNhanPhanHoi) {
+    Serial.println(
+      "Google khong tra ve ket qua hop le, chuyen sang relay local"
+    );
 
-  ketQua.maHTTP = maHTTP;
+    WiFiClient clientRelay;
+    HTTPClient httpRelay;
 
-  Serial.print(
-    "Ma HTTP: "
-  );
+    clientRelay.setTimeout(
+      HTTP_RESPONSE_TIMEOUT
+    );
 
-  Serial.println(
-    maHTTP
-  );
+    httpRelay.setConnectTimeout(
+      HTTP_CONNECT_TIMEOUT
+    );
 
-  if (maHTTP <= 0) {
-    ketQua.trangThai =
-      TT_LOI_SERVER;
+    httpRelay.setTimeout(
+      HTTP_RESPONSE_TIMEOUT
+    );
 
-    ketQua.thongBao =
-      http.errorToString(maHTTP);
+    httpRelay.setReuse(false);
+    httpRelay.setFollowRedirects(
+      HTTPC_STRICT_FOLLOW_REDIRECTS
+    );
+
+    if (!httpRelay.begin(clientRelay, urlRelay)) {
+      ketQua.trangThai =
+        TT_LOI_HTTP;
+
+      ketQua.thongBao =
+        "http.begin that bai";
+
+      return ketQua;
+    }
+
+    maHTTP = httpRelay.GET();
+    ketQua.maHTTP = maHTTP;
+
+    Serial.print(
+      "Ma HTTP Relay: "
+    );
+    Serial.println(maHTTP);
+
+    if (maHTTP <= 0) {
+      ketQua.trangThai =
+        TT_LOI_SERVER;
+
+      ketQua.thongBao =
+        httpRelay.errorToString(maHTTP);
+
+      Serial.println(
+        "Loi HTTP: "
+        + ketQua.thongBao
+      );
+
+      httpRelay.end();
+
+      return ketQua;
+    }
+
+    noiDung = httpRelay.getString();
+    httpRelay.end();
 
     Serial.println(
-      "Loi HTTP: "
-      + ketQua.thongBao
+      "Phan hoi relay:"
     );
-
-    http.end();
-
-    return ketQua;
+    Serial.println(noiDung);
   }
 
-  String noiDung =
-    http.getString();
-
-  http.end();
-
-  Serial.println(
-    "Phan hoi relay:"
-  );
-
-  Serial.println(
-    noiDung
-  );
-
-  // Tách trực tiếp chuỗi JSON
   ketQua.trangThai =
-    layGiaTriJSON(
-      noiDung,
-      "status"
-    );
+    layGiaTriJSON(noiDung, "status");
 
   ketQua.uid =
-    layGiaTriJSON(
-      noiDung,
-      "uid"
-    );
+    layGiaTriJSON(noiDung, "uid");
 
   ketQua.mssv =
-    layGiaTriJSON(
-      noiDung,
-      "mssv"
-    );
+    layGiaTriJSON(noiDung, "mssv");
 
   ketQua.hoTen =
-    layGiaTriJSON(
-      noiDung,
-      "hoTen"
-    );
+    layGiaTriJSON(noiDung, "hoTen");
 
   ketQua.lop =
-    layGiaTriJSON(
-      noiDung,
-      "lop"
-    );
+    layGiaTriJSON(noiDung, "lop");
 
   ketQua.thongBao =
-    layGiaTriJSON(
-      noiDung,
-      "message"
-    );
+    layGiaTriJSON(noiDung, "message");
 
   if (ketQua.trangThai == "") {
     ketQua.trangThai =

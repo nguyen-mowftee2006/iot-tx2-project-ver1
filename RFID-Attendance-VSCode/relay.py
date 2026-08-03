@@ -23,7 +23,7 @@ DIA_CHI = "0.0.0.0"
 CONG = 3000
 
 # ESP32 sau này phải chờ lâu hơn giá trị này
-TIMEOUT_GOOGLE = 25
+TIMEOUT_GOOGLE = 20
 
 
 # ===================== SERVER =====================
