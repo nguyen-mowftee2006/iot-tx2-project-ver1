@@ -114,6 +114,15 @@ function cauHinhDashboard() {
     .insertCheckboxes()
     .setValue(false);
 
+  dashboard
+    .getRange(
+      9,
+      1,
+      Math.max(dashboard.getLastRow() - 8, 1),
+      6
+    )
+    .clearContent();
+
   const oChonPhien = dashboard.getRange(O_CHON_PHIEN_DASHBOARD);
   const maBuoiDangXem = dashboard
     .getRange(O_PHIEN_DANG_XEM)
@@ -126,6 +135,9 @@ function cauHinhDashboard() {
   ) {
     oChonPhien.setValue(maBuoiDangXem);
   }
+
+  SpreadsheetApp.flush();
+  capNhatDanhSachDashboard(ss);
 }
 
 
@@ -165,6 +177,7 @@ function xemPhienDaChon() {
 
   oNut.setValue(false);
   SpreadsheetApp.flush();
+  capNhatDanhSachDashboard(ss);
   ss.toast("Dang xem " + maBuoi, "Dashboard", 3);
 }
 
@@ -196,6 +209,8 @@ function xemPhienMacDinh() {
     .getRange(O_NUT_XEM_PHIEN)
     .setValue(false);
 
+  SpreadsheetApp.flush();
+  capNhatDanhSachDashboard(ss);
   ss.toast("Da ve phien hien tai / gan nhat", "Dashboard", 3);
 }
 
@@ -218,6 +233,106 @@ function maBuoiTonTai(sheetPhienHoc, maBuoi) {
   }
 
   return false;
+}
+
+
+function capNhatDanhSachDashboard(ss) {
+  const dashboard = ss.getSheetByName("Dashboard");
+  const diemDanh = ss.getSheetByName(TEN_SHEET.DIEM_DANH);
+
+  if (dashboard == null || diemDanh == null) {
+    return;
+  }
+
+  const dongBatDau = 9;
+  const soCotHienThi = 6;
+  const soDongCanXoa = Math.max(
+    dashboard.getLastRow() - dongBatDau + 1,
+    1
+  );
+
+  dashboard
+    .getRange(
+      dongBatDau,
+      1,
+      soDongCanXoa,
+      soCotHienThi
+    )
+    .clearContent();
+
+  SpreadsheetApp.flush();
+
+  const maBuoi = dashboard
+    .getRange(O_PHIEN_DANG_XEM)
+    .getDisplayValue()
+    .trim();
+  const dongCuoiDiemDanh = diemDanh.getLastRow();
+
+  if (maBuoi == "" || dongCuoiDiemDanh < 2) {
+    return;
+  }
+
+  const vungDiemDanh = diemDanh.getRange(
+    2,
+    1,
+    dongCuoiDiemDanh - 1,
+    7
+  );
+  const duLieuGoc = vungDiemDanh.getValues();
+  const duLieuHienThi = vungDiemDanh.getDisplayValues();
+  const danhSach = [];
+
+  for (let i = 0; i < duLieuHienThi.length; i++) {
+    if (String(duLieuHienThi[i][6]).trim() != maBuoi) {
+      continue;
+    }
+
+    const thoiGian = duLieuGoc[i][0];
+
+    danhSach.push({
+      mocSapXep: thoiGian instanceof Date
+        ? thoiGian.getTime()
+        : i,
+      soDong: i,
+      giaTri: duLieuHienThi[i].slice(0, soCotHienThi)
+    });
+  }
+
+  danhSach.sort(function(a, b) {
+    if (a.mocSapXep != b.mocSapXep) {
+      return b.mocSapXep - a.mocSapXep;
+    }
+
+    return b.soDong - a.soDong;
+  });
+
+  if (danhSach.length == 0) {
+    return;
+  }
+
+  const dongCuoiCanDung = dongBatDau + danhSach.length - 1;
+
+  if (dongCuoiCanDung > dashboard.getMaxRows()) {
+    dashboard.insertRowsAfter(
+      dashboard.getMaxRows(),
+      dongCuoiCanDung - dashboard.getMaxRows()
+    );
+  }
+
+  dashboard
+    .getRange(
+      dongBatDau,
+      1,
+      danhSach.length,
+      soCotHienThi
+    )
+    .setValues(
+      danhSach.map(function(dong) {
+        return dong.giaTri;
+      })
+    );
+
+  SpreadsheetApp.flush();
 }
 
 
@@ -322,6 +437,7 @@ function doGet(e) {
 
     return traJSON(
       xuLyTheSinhVien(
+        ss,
         cacSheet.phienHoc,
         cacSheet.diemDanh,
         sinhVien
@@ -487,6 +603,7 @@ function xuLyTheGiaoVien(ss, sheetPhienHoc, giaoVien) {
       .setValue(TRANG_THAI.DA_DONG);
 
     SpreadsheetApp.flush();
+    capNhatDanhSachDashboard(ss);
 
     return taoPhanHoiGiaoVien(
       giaoVien,
@@ -520,6 +637,7 @@ function xuLyTheGiaoVien(ss, sheetPhienHoc, giaoVien) {
   ]]);
 
   SpreadsheetApp.flush();
+  capNhatDanhSachDashboard(ss);
 
   return taoPhanHoiGiaoVien(
     giaoVien,
@@ -552,6 +670,7 @@ function taoPhanHoiGiaoVien(
 
 
 function xuLyTheSinhVien(
+  ss,
   sheetPhienHoc,
   sheetDiemDanh,
   sinhVien
@@ -609,6 +728,7 @@ function xuLyTheSinhVien(
   ]]);
 
   SpreadsheetApp.flush();
+  capNhatDanhSachDashboard(ss);
 
   return taoPhanHoiSinhVien(
     sinhVien,

@@ -42,6 +42,22 @@ static String layUID() {
 }
 
 
+// Khoi phuc UID 7 byte cua the NFC xam trong Wokwi neu bo mo phong
+// MFRC522 chi tra ve 4 byte dau.
+static String khoiPhucUIDNFCWokwi(
+  const String &uidDocDuoc
+) {
+  if (
+    rfid.uid.size == 4 &&
+    uidDocDuoc == UID_NFC_WOKWI_RUT_GON
+  ) {
+    return String(UID_NFC_WOKWI_DAY_DU);
+  }
+
+  return uidDocDuoc;
+}
+
+
 static bool laLanQuetLap(
   const String &uid
 ) {
@@ -138,7 +154,10 @@ void loop() {
     return;
   }
 
-  String uid = layUID();
+  String uidDocDuoc = layUID();
+  String uid = khoiPhucUIDNFCWokwi(
+    uidDocDuoc
+  );
 
   // Dừng giao tiếp với thẻ hiện tại
   rfid.PICC_HaltA();
@@ -164,6 +183,17 @@ void loop() {
   Serial.println(
     "Da phat hien the RFID"
   );
+
+  if (uid != uidDocDuoc) {
+    Serial.println(
+      "UID MFRC522 tra ve: "
+      + uidDocDuoc
+    );
+
+    Serial.println(
+      "Da khoi phuc UID NFC Wokwi 7 byte"
+    );
+  }
 
   Serial.println(
     "UID: " + uid
