@@ -8,9 +8,9 @@ Repository này gồm mã nguồn mô phỏng và tài liệu kỹ thuật. Hãy
 
 | Nhu cầu | Tệp hoặc thư mục cần xem |
 | --- | --- |
-| Tìm hiểu toàn bộ kiến trúc và nguyên lý | [Tài liệu kỹ thuật](./BAO_CAO_TOM_TAT_DU_AN.md) |
-| Xem hướng dẫn sử dụng và chạy mô phỏng | [Giới thiệu dự án](./Introduce.md) |
-| Mở Google Sheets của dự án | [Liên kết Google Sheets](./linkggsheet.md) |
+| Tìm hiểu toàn bộ kiến trúc và nguyên lý | [Tài liệu kỹ thuật](./docs/TAI_LIEU_KY_THUAT.md) |
+| Xem hướng dẫn sử dụng và chạy mô phỏng | [Hướng dẫn mô phỏng](./docs/HUONG_DAN_MO_PHONG.md) |
+| Mở Google Sheets của dự án | [Liên kết Google Sheets](./docs/GOOGLE_SHEETS.md) |
 | Xem firmware ESP32 | [`src/`](./src/) |
 | Xem cấu hình chân và thời gian chờ | [`include/CauHinh.h`](./include/CauHinh.h) |
 | Xem nghiệp vụ Google Sheets | [`apps-script/Code.gs`](./apps-script/Code.gs) |
@@ -20,17 +20,19 @@ Repository này gồm mã nguồn mô phỏng và tài liệu kỹ thuật. Hãy
 
 ```text
 .
-├── README.md                     # Trang dẫn đường này
-├── Introduce.md                  # Hướng dẫn sử dụng và chạy mô phỏng
-├── BAO_CAO_TOM_TAT_DU_AN.md     # Tài liệu kỹ thuật đầy đủ
-├── linkggsheet.md                # Liên kết Google Sheets
-├── src/                          # Firmware ESP32
-├── include/                      # Khai báo và cấu hình
-├── apps-script/Code.gs           # Backend Google Apps Script
-├── relay.py                      # Cầu nối chỉ dùng khi mô phỏng
-├── diagram.json                  # Mạch Wokwi
-├── platformio.ini                # Cấu hình PlatformIO
-└── wokwi.toml                    # Firmware dùng bởi Wokwi
+├── README.md                  # Trang dẫn đường
+├── docs/                      # Tài liệu và liên kết tham khảo
+│   ├── TAI_LIEU_KY_THUAT.md
+│   ├── HUONG_DAN_MO_PHONG.md
+│   └── GOOGLE_SHEETS.md
+├── src/                       # Firmware ESP32
+├── include/                   # Header và cấu hình firmware
+├── apps-script/               # Backend Google Apps Script
+│   └── Code.gs
+├── relay.py                   # Cầu nối chỉ dùng khi mô phỏng
+├── diagram.json               # Sơ đồ mạch Wokwi
+├── platformio.ini             # Cấu hình PlatformIO
+└── wokwi.toml                 # Firmware dùng bởi Wokwi
 ```
 
 ## Chạy nhanh
@@ -42,7 +44,7 @@ pio run
 python relay.py
 ```
 
-Chạy các lệnh trên ngay tại thư mục gốc của repository. Sau đó khởi động Wokwi và quét thẻ trong bảng điều khiển MFRC522. Thông tin thẻ giáo viên, chân kết nối và quy trình sử dụng được trình bày trong [hướng dẫn mô phỏng](./Introduce.md).
+Chạy các lệnh trên ngay tại thư mục gốc của repository. Sau đó khởi động Wokwi và quét thẻ trong bảng điều khiển MFRC522. Thông tin thẻ giáo viên, chân kết nối và quy trình sử dụng được trình bày trong [hướng dẫn mô phỏng](./docs/HUONG_DAN_MO_PHONG.md).
 
 ## Trạng thái
 
@@ -50,4 +52,4 @@ Chạy các lệnh trên ngay tại thư mục gốc của repository. Sau đó 
 - Các luồng mở phiên, điểm danh, chống trùng và đóng phiên đã được thử trên Wokwi.
 - Đây là nguyên mẫu mô phỏng; phần cứng thật và kết nối HTTPS trực tiếp từ ESP32 chưa được kiểm thử.
 
-Thông số chân nối, sơ đồ hệ thống thật, cấu trúc Google Sheets, trạng thái API, kết quả kiểm thử và các giới hạn được tập trung trong [tài liệu kỹ thuật](./BAO_CAO_TOM_TAT_DU_AN.md) để tránh lặp lại tại đây.
+Thông số chân nối, sơ đồ hệ thống thật, cấu trúc Google Sheets, trạng thái API, kết quả kiểm thử và các giới hạn được tập trung trong [tài liệu kỹ thuật](./docs/TAI_LIEU_KY_THUAT.md) để tránh lặp lại tại đây.

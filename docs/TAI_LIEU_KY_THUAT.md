@@ -203,7 +203,7 @@ Chương trình cầu nối cục bộ không thuộc kiến trúc phần mềm 
 ### 5.2. Cấu trúc mã nguồn hiện tại
 
 ```text
-RFID-Attendance-VSCode/
+nhapmoniot-project/
 ├── src/
 │   ├── main.cpp
 │   ├── DiemDanh.cpp
@@ -411,7 +411,7 @@ Sau khi sửa `Code.gs`, cần tạo phiên bản/deployment mới để URL Web
 
 ### 8.4. Build và chạy
 
-Từ thư mục `RFID-Attendance-VSCode`:
+Từ thư mục gốc của repository:
 
 ```powershell
 pio run
