@@ -9,27 +9,28 @@ Repository này gồm mã nguồn mô phỏng và tài liệu kỹ thuật. Hãy
 | Nhu cầu | Tệp hoặc thư mục cần xem |
 | --- | --- |
 | Tìm hiểu toàn bộ kiến trúc và nguyên lý | [Tài liệu kỹ thuật](./BAO_CAO_TOM_TAT_DU_AN.md) |
-| Build và chạy mô phỏng | [Hướng dẫn trong thư mục dự án](./RFID-Attendance-VSCode/README.md) |
-| Xem firmware ESP32 | [`RFID-Attendance-VSCode/src/`](./RFID-Attendance-VSCode/src/) |
-| Xem cấu hình chân và thời gian chờ | [`RFID-Attendance-VSCode/include/CauHinh.h`](./RFID-Attendance-VSCode/include/CauHinh.h) |
-| Xem nghiệp vụ Google Sheets | [`RFID-Attendance-VSCode/apps-script/Code.gs`](./RFID-Attendance-VSCode/apps-script/Code.gs) |
-| Xem sơ đồ mạch Wokwi | [`RFID-Attendance-VSCode/diagram.json`](./RFID-Attendance-VSCode/diagram.json) |
+| Xem hướng dẫn sử dụng và chạy mô phỏng | [Giới thiệu dự án](./Introduce.md) |
+| Mở Google Sheets của dự án | [Liên kết Google Sheets](./linkggsheet.md) |
+| Xem firmware ESP32 | [`src/`](./src/) |
+| Xem cấu hình chân và thời gian chờ | [`include/CauHinh.h`](./include/CauHinh.h) |
+| Xem nghiệp vụ Google Sheets | [`apps-script/Code.gs`](./apps-script/Code.gs) |
+| Xem sơ đồ mạch Wokwi | [`diagram.json`](./diagram.json) |
 
 ## Cấu trúc repository
 
 ```text
 .
-├── README.md                         # Trang dẫn đường này
-├── BAO_CAO_TOM_TAT_DU_AN.md         # Tài liệu kỹ thuật đầy đủ
-└── RFID-Attendance-VSCode/
-    ├── README.md                     # Hướng dẫn build và mô phỏng
-    ├── src/                          # Firmware ESP32
-    ├── include/                      # Khai báo và cấu hình
-    ├── apps-script/Code.gs           # Backend Google Apps Script
-    ├── relay.py                      # Cầu nối chỉ dùng khi mô phỏng
-    ├── diagram.json                  # Mạch Wokwi
-    ├── platformio.ini                # Cấu hình PlatformIO
-    └── wokwi.toml                    # Firmware dùng bởi Wokwi
+├── README.md                     # Trang dẫn đường này
+├── Introduce.md                  # Hướng dẫn sử dụng và chạy mô phỏng
+├── BAO_CAO_TOM_TAT_DU_AN.md     # Tài liệu kỹ thuật đầy đủ
+├── linkggsheet.md                # Liên kết Google Sheets
+├── src/                          # Firmware ESP32
+├── include/                      # Khai báo và cấu hình
+├── apps-script/Code.gs           # Backend Google Apps Script
+├── relay.py                      # Cầu nối chỉ dùng khi mô phỏng
+├── diagram.json                  # Mạch Wokwi
+├── platformio.ini                # Cấu hình PlatformIO
+└── wokwi.toml                    # Firmware dùng bởi Wokwi
 ```
 
 ## Chạy nhanh
@@ -37,12 +38,11 @@ Repository này gồm mã nguồn mô phỏng và tài liệu kỹ thuật. Hãy
 Yêu cầu: VS Code, PlatformIO, Wokwi, Python 3 và một Google Apps Script Web App đã được cấu hình.
 
 ```powershell
-cd RFID-Attendance-VSCode
 pio run
 python relay.py
 ```
 
-Sau đó khởi động Wokwi và quét thẻ trong bảng điều khiển MFRC522. Quy trình thiết lập Google Sheets, Apps Script và kiểm tra relay được trình bày trong [hướng dẫn chạy mô phỏng](./RFID-Attendance-VSCode/README.md).
+Chạy các lệnh trên ngay tại thư mục gốc của repository. Sau đó khởi động Wokwi và quét thẻ trong bảng điều khiển MFRC522. Thông tin thẻ giáo viên, chân kết nối và quy trình sử dụng được trình bày trong [hướng dẫn mô phỏng](./Introduce.md).
 
 ## Trạng thái
 
