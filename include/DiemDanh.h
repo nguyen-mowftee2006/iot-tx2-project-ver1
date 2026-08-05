@@ -40,12 +40,8 @@ struct KetQuaDiemDanh {
 
 bool ketNoiWiFi();
 
-KetQuaDiemDanh guiDiemDanh(
-  const String &uid
-);
+KetQuaDiemDanh guiDiemDanh(const String &uid);
 
-void xuLyKetQua(
-  const KetQuaDiemDanh &ketQua
-);
+void xuLyKetQua(const KetQuaDiemDanh &ketQua);
 
 #endif

@@ -21,7 +21,6 @@ constexpr uint16_t TRE_DOC_LAI_THE = 1000;
 constexpr char UID_NFC_WOKWI_RUT_GON[] = "04112233";
 constexpr char UID_NFC_WOKWI_DAY_DU[] = "04112233445566";
 
-
 // ==================== OLED SSD1306 ====================
 
 constexpr uint8_t OLED_SDA_PIN = 21;
@@ -31,14 +30,12 @@ constexpr uint8_t OLED_DIA_CHI = 0x3C;
 constexpr int OLED_RONG = 128;
 constexpr int OLED_CAO = 64;
 
-
 // ==================== BUZZER ====================
 
 constexpr uint8_t BUZZER_PIN = 25;
 constexpr uint8_t BUZZER_KENH_LEDC = 0;
 constexpr uint8_t BUZZER_DO_PHAN_GIAI = 10;
 constexpr uint16_t BUZZER_TAN_SO_KHOI_TAO = 1000;
-
 
 // ==================== RELAY CỬA ====================
 
@@ -51,7 +48,6 @@ constexpr uint8_t RELAY_TAT = HIGH;
 // Thời gian giữ cửa mở sau khi điểm danh thành công
 constexpr uint16_t THOI_GIAN_MO_CUA = 3000;
 
-
 // ==================== WIFI ====================
 
 constexpr char WIFI_SSID[] = "Wokwi-GUEST";
@@ -61,11 +57,9 @@ constexpr uint8_t WIFI_KENH = 6;
 constexpr uint8_t SO_LAN_THU_WIFI = 20;
 constexpr uint16_t TRE_THU_WIFI = 400;
 
-
 // ==================== LOCAL RELAY ====================
 
-constexpr char RELAY_URL[] =
-  "http://host.wokwi.internal:3000/";
+constexpr char RELAY_URL[] = "http://host.wokwi.internal:3000/";
 
 // Relay có thể phải chờ Google Apps Script lâu hơn một chút.
 // ESP32 cần chờ lâu hơn để tránh báo lỗi sai khi relay vẫn đang xử lý.

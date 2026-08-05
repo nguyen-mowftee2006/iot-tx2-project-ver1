@@ -8,7 +8,6 @@
 #include "ManHinh.h"
 #include "ThietBi.h"
 
-
 // Chuẩn hóa UID trước khi gửi
 static String chuanHoaUID(String uid) {
   uid.replace(":", "");
@@ -19,12 +18,8 @@ static String chuanHoaUID(String uid) {
   return uid;
 }
 
-
 // Lấy một giá trị đơn giản từ chuỗi JSON
-static String layGiaTriJSON(
-  const String &json,
-  const String &khoa
-) {
+static String layGiaTriJSON(const String &json, const String &khoa) {
   String mau = "\"" + khoa + "\"";
   int viTriKhoa = json.indexOf(mau);
 
@@ -32,10 +27,7 @@ static String layGiaTriJSON(
     return "";
   }
 
-  int viTriHaiCham = json.indexOf(
-    ':',
-    viTriKhoa + mau.length()
-  );
+  int viTriHaiCham = json.indexOf(':', viTriKhoa + mau.length());
 
   if (viTriHaiCham < 0) {
     return "";
@@ -43,15 +35,8 @@ static String layGiaTriJSON(
 
   int batDau = viTriHaiCham + 1;
 
-  while (
-    batDau < json.length() &&
-    (
-      json[batDau] == ' ' ||
-      json[batDau] == '\n' ||
-      json[batDau] == '\r' ||
-      json[batDau] == '\t'
-    )
-  ) {
+  while (batDau < json.length() && (json[batDau] == ' ' || json[batDau] == '\n' ||
+                                    json[batDau] == '\r' || json[batDau] == '\t')) {
     batDau++;
   }
 
@@ -64,10 +49,7 @@ static String layGiaTriJSON(
     int ketThuc = batDau;
 
     while (ketThuc < json.length()) {
-      if (
-        json[ketThuc] == '"' &&
-        json[ketThuc - 1] != '\\'
-      ) {
+      if (json[ketThuc] == '"' && json[ketThuc - 1] != '\\') {
         break;
       }
       ketThuc++;
@@ -87,11 +69,7 @@ static String layGiaTriJSON(
 
   int ketThuc = batDau;
 
-  while (
-    ketThuc < json.length() &&
-    json[ketThuc] != ',' &&
-    json[ketThuc] != '}'
-  ) {
+  while (ketThuc < json.length() && json[ketThuc] != ',' && json[ketThuc] != '}') {
     ketThuc++;
   }
 
@@ -100,11 +78,8 @@ static String layGiaTriJSON(
   return giaTri;
 }
 
-
 // Đổi trạng thái lỗi thành nội dung hiển thị
-static String layTenLoi(
-  const String &trangThai
-) {
+static String layTenLoi(const String &trangThai) {
   if (trangThai == TT_LOI_WIFI)
     return "MAT KET NOI WIFI";
 
@@ -141,16 +116,11 @@ static String layTenLoi(
   return "PHAN HOI KHONG HOP LE";
 }
 
-
 // Báo lỗi hệ thống
-static void baoLoi(
-  const String &noiDung
-) {
+static void baoLoi(const String &noiDung) {
   dongCua();
 
-  hienThiLoi(
-    noiDung
-  );
+  hienThiLoi(noiDung);
 
   keuLoiHeThong();
 
@@ -158,54 +128,30 @@ static void baoLoi(
   hienThiCho();
 }
 
-
 // Kết nối Wi-Fi
 bool ketNoiWiFi() {
   if (WiFi.status() == WL_CONNECTED) {
     return true;
   }
 
-  Serial.print(
-    "Dang ket noi WiFi"
-  );
+  Serial.print("Dang ket noi WiFi");
 
-  hienThiOLED(
-    "DANG KET NOI WIFI",
-    "",
-    "VUI LONG CHO...",
-    ""
-  );
+  hienThiOLED("DANG KET NOI WIFI", "", "VUI LONG CHO...", "");
 
-  WiFi.mode(
-    WIFI_STA
-  );
+  WiFi.mode(WIFI_STA);
 
   WiFi.setAutoReconnect(true);
   WiFi.setSleep(false);
 
-  WiFi.begin(
-    WIFI_SSID,
-    WIFI_MAT_KHAU,
-    WIFI_KENH
-  );
+  WiFi.begin(WIFI_SSID, WIFI_MAT_KHAU, WIFI_KENH);
 
-  for (
-    int i = 0;
-    i < SO_LAN_THU_WIFI;
-    i++
-  ) {
+  for (int i = 0; i < SO_LAN_THU_WIFI; i++) {
     if (WiFi.status() == WL_CONNECTED) {
-      Serial.println(
-        "\nKet noi WiFi thanh cong"
-      );
+      Serial.println("\nKet noi WiFi thanh cong");
 
-      Serial.print(
-        "IP: "
-      );
+      Serial.print("IP: ");
 
-      Serial.println(
-        WiFi.localIP()
-      );
+      Serial.println(WiFi.localIP());
 
       return true;
     }
@@ -214,88 +160,56 @@ bool ketNoiWiFi() {
     delay(TRE_THU_WIFI);
   }
 
-  Serial.println(
-    "\nKhong ket noi duoc WiFi"
-  );
+  Serial.println("\nKhong ket noi duoc WiFi");
 
   return false;
 }
 
-
 // Gửi UID tới relay.py, sau đó relay.py sẽ gọi Apps Script
-KetQuaDiemDanh guiDiemDanh(
-  const String &uid
-) {
+KetQuaDiemDanh guiDiemDanh(const String &uid) {
   KetQuaDiemDanh ketQua;
 
-  String uidChuan =
-    chuanHoaUID(uid);
+  String uidChuan = chuanHoaUID(uid);
 
   if (uidChuan == "") {
-    ketQua.trangThai =
-      TT_THIEU_UID;
+    ketQua.trangThai = TT_THIEU_UID;
 
     return ketQua;
   }
 
-  if (
-    WiFi.status() != WL_CONNECTED &&
-    !ketNoiWiFi()
-  ) {
-    ketQua.trangThai =
-      TT_LOI_WIFI;
+  if (WiFi.status() != WL_CONNECTED && !ketNoiWiFi()) {
+    ketQua.trangThai = TT_LOI_WIFI;
 
     return ketQua;
   }
 
-  String url =
-    String(RELAY_URL)
-    + "?uid="
-    + uidChuan;
+  String url = String(RELAY_URL) + "?uid=" + uidChuan;
 
-  Serial.println(
-    "\n=============================="
-  );
+  Serial.println("\n==============================");
 
-  Serial.println(
-    "Dang gui UID toi relay"
-  );
+  Serial.println("Dang gui UID toi relay");
 
-  Serial.println(
-    "UID: " + uidChuan
-  );
+  Serial.println("UID: " + uidChuan);
 
-  Serial.println(
-    "URL: " + url
-  );
+  Serial.println("URL: " + url);
 
-  hienThiDangXuLy(
-    uidChuan
-  );
+  hienThiDangXuLy(uidChuan);
 
   WiFiClient client;
   HTTPClient http;
 
-  client.setTimeout(
-    HTTP_RESPONSE_TIMEOUT
-  );
+  client.setTimeout(HTTP_RESPONSE_TIMEOUT);
 
-  http.setConnectTimeout(
-    HTTP_CONNECT_TIMEOUT
-  );
+  http.setConnectTimeout(HTTP_CONNECT_TIMEOUT);
 
-  http.setTimeout(
-    HTTP_RESPONSE_TIMEOUT
-  );
+  http.setTimeout(HTTP_RESPONSE_TIMEOUT);
 
   http.setReuse(false);
 
   if (!http.begin(client, url)) {
-    ketQua.trangThai =
-      TT_LOI_HTTP;
+    ketQua.trangThai = TT_LOI_HTTP;
 
-    ketQua.thongBao =
-      "http.begin that bai";
+    ketQua.thongBao = "http.begin that bai";
 
     return ketQua;
   }
@@ -303,22 +217,15 @@ KetQuaDiemDanh guiDiemDanh(
   int maHTTP = http.GET();
   ketQua.maHTTP = maHTTP;
 
-  Serial.print(
-    "Ma HTTP: "
-  );
+  Serial.print("Ma HTTP: ");
   Serial.println(maHTTP);
 
   if (maHTTP <= 0) {
-    ketQua.trangThai =
-      TT_LOI_SERVER;
+    ketQua.trangThai = TT_LOI_SERVER;
 
-    ketQua.thongBao =
-      http.errorToString(maHTTP);
+    ketQua.thongBao = http.errorToString(maHTTP);
 
-    Serial.println(
-      "Loi HTTP: "
-      + ketQua.thongBao
-    );
+    Serial.println("Loi HTTP: " + ketQua.thongBao);
 
     http.end();
     return ketQua;
@@ -327,78 +234,47 @@ KetQuaDiemDanh guiDiemDanh(
   String noiDung = http.getString();
   http.end();
 
-  Serial.println(
-    "Phan hoi relay:"
-  );
+  Serial.println("Phan hoi relay:");
   Serial.println(noiDung);
 
-  ketQua.trangThai =
-    layGiaTriJSON(noiDung, "status");
+  ketQua.trangThai = layGiaTriJSON(noiDung, "status");
 
-  ketQua.uid =
-    layGiaTriJSON(noiDung, "uid");
+  ketQua.uid = layGiaTriJSON(noiDung, "uid");
 
-  ketQua.mssv =
-    layGiaTriJSON(noiDung, "mssv");
+  ketQua.mssv = layGiaTriJSON(noiDung, "mssv");
 
-  ketQua.hoTen =
-    layGiaTriJSON(noiDung, "hoTen");
+  ketQua.hoTen = layGiaTriJSON(noiDung, "hoTen");
 
-  ketQua.lop =
-    layGiaTriJSON(noiDung, "lop");
+  ketQua.lop = layGiaTriJSON(noiDung, "lop");
 
-  ketQua.thongBao =
-    layGiaTriJSON(noiDung, "message");
+  ketQua.thongBao = layGiaTriJSON(noiDung, "message");
 
   if (ketQua.trangThai == "") {
-    ketQua.trangThai =
-      TT_PHAN_HOI_LOI;
+    ketQua.trangThai = TT_PHAN_HOI_LOI;
 
-    ketQua.thongBao =
-      "Khong tim thay status";
+    ketQua.thongBao = "Khong tim thay status";
   }
 
-  Serial.println(
-    "Trang thai: "
-    + ketQua.trangThai
-  );
+  Serial.println("Trang thai: " + ketQua.trangThai);
 
-  Serial.println(
-    "=============================="
-  );
+  Serial.println("==============================");
 
   return ketQua;
 }
 
-
 // Xử lý kết quả điểm danh
-void xuLyKetQua(
-  const KetQuaDiemDanh &ketQua
-) {
-  const String &trangThai =
-    ketQua.trangThai;
+void xuLyKetQua(const KetQuaDiemDanh &ketQua) {
+  const String &trangThai = ketQua.trangThai;
 
   // Thẻ giáo viên mở phiên điểm danh
   if (trangThai == TT_PHIEN_DA_MO) {
-    Serial.println(
-      "=> GIAO VIEN DA MO PHIEN"
-    );
+    Serial.println("=> GIAO VIEN DA MO PHIEN");
 
     dongCua();
 
-    hienThiOLED(
-      "THE GIAO VIEN",
-      ketQua.hoTen,
-      "DA MO PHIEN",
-      "MOI QUET THE..."
-    );
+    hienThiOLED("THE GIAO VIEN", ketQua.hoTen, "DA MO PHIEN", "MOI QUET THE...");
 
-    keuBuzzer(
-      2,
-      1500,
-      120,
-      100
-    );
+    keuBuzzer(2, 1500, 120, 100);
 
     delay(700);
     hienThiCho();
@@ -407,75 +283,39 @@ void xuLyKetQua(
 
   // Thẻ giáo viên đóng phiên điểm danh
   if (trangThai == TT_PHIEN_DA_DONG) {
-    Serial.println(
-      "=> GIAO VIEN DA DONG PHIEN"
-    );
+    Serial.println("=> GIAO VIEN DA DONG PHIEN");
 
     dongCua();
 
-    hienThiOLED(
-      "THE GIAO VIEN",
-      ketQua.hoTen,
-      "DA DONG PHIEN",
-      "KET THUC DIEM DANH"
-    );
+    hienThiOLED("THE GIAO VIEN", ketQua.hoTen, "DA DONG PHIEN", "KET THUC DIEM DANH");
 
-    keuBuzzer(
-      1,
-      700,
-      450,
-      0
-    );
+    keuBuzzer(1, 700, 450, 0);
 
     delay(700);
 
-    hienThiOLED(
-      "PHIEN CHUA MO",
-      "",
-      "CHO GIAO VIEN",
-      "QUET THE..."
-    );
+    hienThiOLED("PHIEN CHUA MO", "", "CHO GIAO VIEN", "QUET THE...");
 
     return;
   }
 
   // Sinh viên quét thẻ khi giáo viên chưa mở phiên
   if (trangThai == TT_PHIEN_CHUA_MO) {
-    Serial.println(
-      "=> PHIEN CHUA MO"
-    );
+    Serial.println("=> PHIEN CHUA MO");
 
     dongCua();
 
-    hienThiOLED(
-      "PHIEN CHUA MO",
-      "",
-      "CHO GIAO VIEN",
-      "QUET THE..."
-    );
+    hienThiOLED("PHIEN CHUA MO", "", "CHO GIAO VIEN", "QUET THE...");
 
-    keuBuzzer(
-      2,
-      600,
-      130,
-      100
-    );
+    keuBuzzer(2, 600, 130, 100);
 
     return;
   }
 
   // Điểm danh thành công
   if (trangThai == TT_THANH_CONG) {
-    Serial.println(
-      "=> DIEM DANH THANH CONG"
-    );
+    Serial.println("=> DIEM DANH THANH CONG");
 
-    hienThiSinhVien(
-      "DIEM DANH THANH CONG",
-      ketQua.hoTen,
-      ketQua.mssv,
-      ketQua.lop
-    );
+    hienThiSinhVien("DIEM DANH THANH CONG", ketQua.hoTen, ketQua.mssv, ketQua.lop);
 
     moCua();
     keuThanhCong();
@@ -485,16 +325,9 @@ void xuLyKetQua(
 
   // Đã điểm danh rồi, giữ relay tắt
   if (trangThai == TT_DA_DIEM_DANH) {
-    Serial.println(
-      "=> DA DIEM DANH"
-    );
+    Serial.println("=> DA DIEM DANH");
 
-    hienThiSinhVien(
-      "DA DIEM DANH",
-      ketQua.hoTen,
-      ketQua.mssv,
-      ketQua.lop
-    );
+    hienThiSinhVien("DA DIEM DANH", ketQua.hoTen, ketQua.mssv, ketQua.lop);
 
     dongCua();
     keuDaDiemDanh();
@@ -506,18 +339,11 @@ void xuLyKetQua(
 
   // Thẻ không tồn tại
   if (trangThai == TT_THE_LOI) {
-    Serial.println(
-      "=> THE KHONG HOP LE"
-    );
+    Serial.println("=> THE KHONG HOP LE");
 
     dongCua();
 
-    hienThiOLED(
-      "THE KHONG HOP LE",
-      "",
-      "TU CHOI TRUY CAP",
-      ""
-    );
+    hienThiOLED("THE KHONG HOP LE", "", "TU CHOI TRUY CAP", "");
 
     keuTheKhongHopLe();
 
@@ -528,24 +354,13 @@ void xuLyKetQua(
   }
 
   // Các trạng thái lỗi
-  String tenLoi =
-    layTenLoi(
-      trangThai
-    );
+  String tenLoi = layTenLoi(trangThai);
 
-  Serial.println(
-    "=> LOI: "
-    + tenLoi
-  );
+  Serial.println("=> LOI: " + tenLoi);
 
   if (ketQua.thongBao != "") {
-    Serial.println(
-      "Chi tiet: "
-      + ketQua.thongBao
-    );
+    Serial.println("Chi tiet: " + ketQua.thongBao);
   }
 
-  baoLoi(
-    tenLoi
-  );
+  baoLoi(tenLoi);
 }

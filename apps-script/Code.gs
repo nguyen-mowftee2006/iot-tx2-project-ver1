@@ -1,9 +1,5 @@
-const TEN_SHEET = Object.freeze({
-  SINH_VIEN: "SinhVien",
-  GIAO_VIEN: "GiaoVien",
-  PHIEN_HOC: "PhienHoc",
-  DIEM_DANH: "DiemDanh"
-});
+const TEN_SHEET = Object.freeze(
+    {SINH_VIEN: "SinhVien", GIAO_VIEN: "GiaoVien", PHIEN_HOC: "PhienHoc", DIEM_DANH: "DiemDanh"});
 
 const TRANG_THAI = Object.freeze({
   DIEM_DANH_THANH_CONG: "DIEM_DANH_THANH_CONG",
@@ -22,30 +18,14 @@ const TRANG_THAI = Object.freeze({
 const CAU_TRUC_SHEET = Object.freeze({
   SinhVien: ["UID", "MSSV", "HoTen", "Lop"],
   GiaoVien: ["UID", "MaGV", "HoTen", "BoMon"],
-  PhienHoc: [
-    "MaBuoi",
-    "UIDGiaoVien",
-    "MaGV",
-    "HoTenGiaoVien",
-    "ThoiGianMo",
-    "ThoiGianDong",
-    "TrangThai"
-  ],
-  DiemDanh: [
-    "ThoiGian",
-    "UID",
-    "MSSV",
-    "HoTen",
-    "Lop",
-    "TrangThai",
-    "MaBuoi"
-  ]
+  PhienHoc:
+      ["MaBuoi", "UIDGiaoVien", "MaGV", "HoTenGiaoVien", "ThoiGianMo", "ThoiGianDong", "TrangThai"],
+  DiemDanh: ["ThoiGian", "UID", "MSSV", "HoTen", "Lop", "TrangThai", "MaBuoi"]
 });
 
 const THOI_GIAN_CHO_KHOA_MS = 5000;
 const THOI_GIAN_CHONG_QUET_LAP_GV_MS = 3000;
-const KHOA_QUET_GIAO_VIEN_GAN_NHAT =
-  "QUET_GIAO_VIEN_GAN_NHAT_V2";
+const KHOA_QUET_GIAO_VIEN_GAN_NHAT = "QUET_GIAO_VIEN_GAN_NHAT_V2";
 const O_CHON_PHIEN_DASHBOARD = "C3";
 const O_NUT_XEM_PHIEN = "F3";
 const O_PHIEN_DANG_XEM = "K5";
@@ -53,26 +33,20 @@ const O_PHIEN_CHON_THU_CONG = "K6";
 
 
 function onOpen() {
-  SpreadsheetApp
-    .getUi()
-    .createMenu("RFID")
-    .addItem("Cau hinh Dashboard", "cauHinhDashboard")
-    .addItem("Xem phien da chon", "xemPhienDaChon")
-    .addItem("Ve phien hien tai / gan nhat", "xemPhienMacDinh")
-    .addToUi();
+  SpreadsheetApp.getUi()
+      .createMenu("RFID")
+      .addItem("Cau hinh Dashboard", "cauHinhDashboard")
+      .addItem("Xem phien da chon", "xemPhienDaChon")
+      .addItem("Ve phien hien tai / gan nhat", "xemPhienMacDinh")
+      .addToUi();
 
   cauHinhDashboard();
 }
 
 
 function onEdit(e) {
-  if (
-    !e
-    || !e.range
-    || e.range.getSheet().getName() != "Dashboard"
-    || e.range.getA1Notation() != O_NUT_XEM_PHIEN
-    || String(e.value).toUpperCase() != "TRUE"
-  ) {
+  if (!e || !e.range || e.range.getSheet().getName() != "Dashboard" ||
+      e.range.getA1Notation() != O_NUT_XEM_PHIEN || String(e.value).toUpperCase() != "TRUE") {
     return;
   }
 
@@ -89,50 +63,23 @@ function cauHinhDashboard() {
     return;
   }
 
-  const soDongDanhSach = Math.max(
-    phienHoc.getMaxRows() - 1,
-    1
-  );
-  const danhSachMaBuoi = phienHoc.getRange(
-    2,
-    1,
-    soDongDanhSach,
-    1
-  );
-  const quyTacChonPhien = SpreadsheetApp
-    .newDataValidation()
-    .requireValueInRange(danhSachMaBuoi, true)
-    .setAllowInvalid(false)
-    .build();
+  const soDongDanhSach = Math.max(phienHoc.getMaxRows() - 1, 1);
+  const danhSachMaBuoi = phienHoc.getRange(2, 1, soDongDanhSach, 1);
+  const quyTacChonPhien = SpreadsheetApp.newDataValidation()
+                              .requireValueInRange(danhSachMaBuoi, true)
+                              .setAllowInvalid(false)
+                              .build();
 
-  dashboard
-    .getRange(O_CHON_PHIEN_DASHBOARD)
-    .setDataValidation(quyTacChonPhien);
+  dashboard.getRange(O_CHON_PHIEN_DASHBOARD).setDataValidation(quyTacChonPhien);
 
-  dashboard
-    .getRange(O_NUT_XEM_PHIEN)
-    .insertCheckboxes()
-    .setValue(false);
+  dashboard.getRange(O_NUT_XEM_PHIEN).insertCheckboxes().setValue(false);
 
-  dashboard
-    .getRange(
-      9,
-      1,
-      Math.max(dashboard.getLastRow() - 8, 1),
-      6
-    )
-    .clearContent();
+  dashboard.getRange(9, 1, Math.max(dashboard.getLastRow() - 8, 1), 6).clearContent();
 
   const oChonPhien = dashboard.getRange(O_CHON_PHIEN_DASHBOARD);
-  const maBuoiDangXem = dashboard
-    .getRange(O_PHIEN_DANG_XEM)
-    .getDisplayValue()
-    .trim();
+  const maBuoiDangXem = dashboard.getRange(O_PHIEN_DANG_XEM).getDisplayValue().trim();
 
-  if (
-    oChonPhien.getDisplayValue().trim() == ""
-    && maBuoiDangXem != ""
-  ) {
+  if (oChonPhien.getDisplayValue().trim() == "" && maBuoiDangXem != "") {
     oChonPhien.setValue(maBuoiDangXem);
   }
 
@@ -151,15 +98,10 @@ function xemPhienDaChon() {
   }
 
   const oNut = dashboard.getRange(O_NUT_XEM_PHIEN);
-  const maBuoi = dashboard
-    .getRange(O_CHON_PHIEN_DASHBOARD)
-    .getDisplayValue()
-    .trim();
+  const maBuoi = dashboard.getRange(O_CHON_PHIEN_DASHBOARD).getDisplayValue().trim();
 
   if (maBuoi == "") {
-    dashboard
-      .getRange(O_PHIEN_CHON_THU_CONG)
-      .clearContent();
+    dashboard.getRange(O_PHIEN_CHON_THU_CONG).clearContent();
     oNut.setValue(false);
     ss.toast("Da ve phien hien tai / gan nhat", "Dashboard", 3);
     return;
@@ -171,9 +113,7 @@ function xemPhienDaChon() {
     return;
   }
 
-  dashboard
-    .getRange(O_PHIEN_CHON_THU_CONG)
-    .setValue(maBuoi);
+  dashboard.getRange(O_PHIEN_CHON_THU_CONG).setValue(maBuoi);
 
   oNut.setValue(false);
   SpreadsheetApp.flush();
@@ -190,24 +130,15 @@ function xemPhienMacDinh() {
     return;
   }
 
-  dashboard
-    .getRange(O_PHIEN_CHON_THU_CONG)
-    .clearContent();
+  dashboard.getRange(O_PHIEN_CHON_THU_CONG).clearContent();
 
   SpreadsheetApp.flush();
 
-  const maBuoi = dashboard
-    .getRange(O_PHIEN_DANG_XEM)
-    .getDisplayValue()
-    .trim();
+  const maBuoi = dashboard.getRange(O_PHIEN_DANG_XEM).getDisplayValue().trim();
 
-  dashboard
-    .getRange(O_CHON_PHIEN_DASHBOARD)
-    .setValue(maBuoi);
+  dashboard.getRange(O_CHON_PHIEN_DASHBOARD).setValue(maBuoi);
 
-  dashboard
-    .getRange(O_NUT_XEM_PHIEN)
-    .setValue(false);
+  dashboard.getRange(O_NUT_XEM_PHIEN).setValue(false);
 
   SpreadsheetApp.flush();
   capNhatDanhSachDashboard(ss);
@@ -222,9 +153,7 @@ function maBuoiTonTai(sheetPhienHoc, maBuoi) {
     return false;
   }
 
-  const danhSach = sheetPhienHoc
-    .getRange(2, 1, dongCuoi - 1, 1)
-    .getDisplayValues();
+  const danhSach = sheetPhienHoc.getRange(2, 1, dongCuoi - 1, 1).getDisplayValues();
 
   for (let i = 0; i < danhSach.length; i++) {
     if (String(danhSach[i][0]).trim() == maBuoi) {
@@ -246,38 +175,20 @@ function capNhatDanhSachDashboard(ss) {
 
   const dongBatDau = 9;
   const soCotHienThi = 6;
-  const soDongCanXoa = Math.max(
-    dashboard.getLastRow() - dongBatDau + 1,
-    1
-  );
+  const soDongCanXoa = Math.max(dashboard.getLastRow() - dongBatDau + 1, 1);
 
-  dashboard
-    .getRange(
-      dongBatDau,
-      1,
-      soDongCanXoa,
-      soCotHienThi
-    )
-    .clearContent();
+  dashboard.getRange(dongBatDau, 1, soDongCanXoa, soCotHienThi).clearContent();
 
   SpreadsheetApp.flush();
 
-  const maBuoi = dashboard
-    .getRange(O_PHIEN_DANG_XEM)
-    .getDisplayValue()
-    .trim();
+  const maBuoi = dashboard.getRange(O_PHIEN_DANG_XEM).getDisplayValue().trim();
   const dongCuoiDiemDanh = diemDanh.getLastRow();
 
   if (maBuoi == "" || dongCuoiDiemDanh < 2) {
     return;
   }
 
-  const vungDiemDanh = diemDanh.getRange(
-    2,
-    1,
-    dongCuoiDiemDanh - 1,
-    7
-  );
+  const vungDiemDanh = diemDanh.getRange(2, 1, dongCuoiDiemDanh - 1, 7);
   const duLieuGoc = vungDiemDanh.getValues();
   const duLieuHienThi = vungDiemDanh.getDisplayValues();
   const danhSach = [];
@@ -290,9 +201,7 @@ function capNhatDanhSachDashboard(ss) {
     const thoiGian = duLieuGoc[i][0];
 
     danhSach.push({
-      mocSapXep: thoiGian instanceof Date
-        ? thoiGian.getTime()
-        : i,
+      mocSapXep: thoiGian instanceof Date ? thoiGian.getTime() : i,
       soDong: i,
       giaTri: duLieuHienThi[i].slice(0, soCotHienThi)
     });
@@ -313,24 +222,13 @@ function capNhatDanhSachDashboard(ss) {
   const dongCuoiCanDung = dongBatDau + danhSach.length - 1;
 
   if (dongCuoiCanDung > dashboard.getMaxRows()) {
-    dashboard.insertRowsAfter(
-      dashboard.getMaxRows(),
-      dongCuoiCanDung - dashboard.getMaxRows()
-    );
+    dashboard.insertRowsAfter(dashboard.getMaxRows(), dongCuoiCanDung - dashboard.getMaxRows());
   }
 
-  dashboard
-    .getRange(
-      dongBatDau,
-      1,
-      danhSach.length,
-      soCotHienThi
-    )
-    .setValues(
-      danhSach.map(function(dong) {
+  dashboard.getRange(dongBatDau, 1, danhSach.length, soCotHienThi)
+      .setValues(danhSach.map(function(dong) {
         return dong.giaTri;
-      })
-    );
+      }));
 
   SpreadsheetApp.flush();
 }
@@ -340,17 +238,10 @@ function doGet(e) {
   let khoa = null;
 
   try {
-    const uid = chuanHoaUID(
-      e && e.parameter
-        ? e.parameter.uid
-        : ""
-    );
+    const uid = chuanHoaUID(e && e.parameter ? e.parameter.uid : "");
 
     if (uid == "") {
-      return traJSON({
-        success: false,
-        status: TRANG_THAI.THIEU_UID
-      });
+      return traJSON({success: false, status: TRANG_THAI.THIEU_UID});
     }
 
     khoa = LockService.getScriptLock();
@@ -386,17 +277,10 @@ function doGet(e) {
     const loiCauTruc = kiemTraCauTrucCacSheet(cacSheet);
 
     if (loiCauTruc != "") {
-      return traJSON({
-        success: false,
-        status: TRANG_THAI.LOI_APPS_SCRIPT,
-        message: loiCauTruc
-      });
+      return traJSON({success: false, status: TRANG_THAI.LOI_APPS_SCRIPT, message: loiCauTruc});
     }
 
-    const giaoVien = timGiaoVienTheoUID(
-      cacSheet.giaoVien,
-      uid
-    );
+    const giaoVien = timGiaoVienTheoUID(cacSheet.giaoVien, uid);
 
     if (giaoVien != null) {
       const phanHoiLap = layPhanHoiGiaoVienGanNhat(uid);
@@ -406,51 +290,27 @@ function doGet(e) {
         return traJSON(phanHoiLap);
       }
 
-      const phanHoiGiaoVien = xuLyTheGiaoVien(
-        ss,
-        cacSheet.phienHoc,
-        giaoVien
-      );
+      const phanHoiGiaoVien = xuLyTheGiaoVien(ss, cacSheet.phienHoc, giaoVien);
 
       if (phanHoiGiaoVien.success) {
-        luuPhanHoiGiaoVienGanNhat(
-          uid,
-          phanHoiGiaoVien
-        );
+        luuPhanHoiGiaoVienGanNhat(uid, phanHoiGiaoVien);
       }
 
       return traJSON(phanHoiGiaoVien);
     }
 
-    const sinhVien = timSinhVienTheoUID(
-      cacSheet.sinhVien,
-      uid
-    );
+    const sinhVien = timSinhVienTheoUID(cacSheet.sinhVien, uid);
 
     if (sinhVien == null) {
-      return traJSON({
-        success: false,
-        uid: uid,
-        status: TRANG_THAI.THE_KHONG_HOP_LE
-      });
+      return traJSON({success: false, uid: uid, status: TRANG_THAI.THE_KHONG_HOP_LE});
     }
 
-    return traJSON(
-      xuLyTheSinhVien(
-        ss,
-        cacSheet.phienHoc,
-        cacSheet.diemDanh,
-        sinhVien
-      )
-    );
+    return traJSON(xuLyTheSinhVien(ss, cacSheet.phienHoc, cacSheet.diemDanh, sinhVien));
   } catch (loi) {
     console.error(loi);
 
-    return traJSON({
-      success: false,
-      status: TRANG_THAI.LOI_APPS_SCRIPT,
-      message: layThongBaoLoi(loi)
-    });
+    return traJSON(
+        {success: false, status: TRANG_THAI.LOI_APPS_SCRIPT, message: layThongBaoLoi(loi)});
   } finally {
     if (khoa != null && khoa.hasLock()) {
       khoa.releaseLock();
@@ -490,30 +350,21 @@ function layCacSheet(ss) {
 
 function kiemTraCauTrucCacSheet(cacSheet) {
   const danhSach = [
-    [cacSheet.sinhVien, TEN_SHEET.SINH_VIEN],
-    [cacSheet.giaoVien, TEN_SHEET.GIAO_VIEN],
-    [cacSheet.phienHoc, TEN_SHEET.PHIEN_HOC],
-    [cacSheet.diemDanh, TEN_SHEET.DIEM_DANH]
+    [cacSheet.sinhVien, TEN_SHEET.SINH_VIEN], [cacSheet.giaoVien, TEN_SHEET.GIAO_VIEN],
+    [cacSheet.phienHoc, TEN_SHEET.PHIEN_HOC], [cacSheet.diemDanh, TEN_SHEET.DIEM_DANH]
   ];
 
   for (let i = 0; i < danhSach.length; i++) {
     const sheet = danhSach[i][0];
     const tenSheet = danhSach[i][1];
     const tieuDeMongDoi = CAU_TRUC_SHEET[tenSheet];
-    const tieuDeThucTe = sheet
-      .getRange(1, 1, 1, tieuDeMongDoi.length)
-      .getDisplayValues()[0];
+    const tieuDeThucTe = sheet.getRange(1, 1, 1, tieuDeMongDoi.length).getDisplayValues()[0];
 
     for (let cot = 0; cot < tieuDeMongDoi.length; cot++) {
       if (String(tieuDeThucTe[cot]).trim() != tieuDeMongDoi[cot]) {
         return (
-          "Sai cau truc sheet "
-          + tenSheet
-          + " tai cot "
-          + (cot + 1)
-          + ". Can tieu de: "
-          + tieuDeMongDoi[cot]
-        );
+            "Sai cau truc sheet " + tenSheet + " tai cot " + (cot + 1) +
+            ". Can tieu de: " + tieuDeMongDoi[cot]);
       }
     }
   }
@@ -529,13 +380,7 @@ function timGiaoVienTheoUID(sheet, uid) {
     return null;
   }
 
-  return {
-    uid: uid,
-    uidLuu: dong[0],
-    maGV: dong[1],
-    hoTen: dong[2],
-    boMon: dong[3]
-  };
+  return {uid: uid, uidLuu: dong[0], maGV: dong[1], hoTen: dong[2], boMon: dong[3]};
 }
 
 
@@ -546,13 +391,7 @@ function timSinhVienTheoUID(sheet, uid) {
     return null;
   }
 
-  return {
-    uid: uid,
-    uidLuu: dong[0],
-    mssv: dong[1],
-    hoTen: dong[2],
-    lop: dong[3]
-  };
+  return {uid: uid, uidLuu: dong[0], mssv: dong[1], hoTen: dong[2], lop: dong[3]};
 }
 
 
@@ -563,9 +402,7 @@ function timDongTheoUID(sheet, uid, soCot) {
     return null;
   }
 
-  const duLieu = sheet
-    .getRange(2, 1, dongCuoi - 1, soCot)
-    .getDisplayValues();
+  const duLieu = sheet.getRange(2, 1, dongCuoi - 1, soCot).getDisplayValues();
 
   for (let i = 0; i < duLieu.length; i++) {
     if (chuanHoaUID(duLieu[i][0]) == uid) {
@@ -581,11 +418,7 @@ function xuLyTheGiaoVien(ss, sheetPhienHoc, giaoVien) {
   const ketQuaTimPhien = timPhienDangMo(sheetPhienHoc);
 
   if (ketQuaTimPhien.loi != "") {
-    return {
-      success: false,
-      status: TRANG_THAI.LOI_APPS_SCRIPT,
-      message: ketQuaTimPhien.loi
-    };
+    return {success: false, status: TRANG_THAI.LOI_APPS_SCRIPT, message: ketQuaTimPhien.loi};
   }
 
   const thoiGian = new Date();
@@ -593,67 +426,36 @@ function xuLyTheGiaoVien(ss, sheetPhienHoc, giaoVien) {
   if (ketQuaTimPhien.phien != null) {
     const phien = ketQuaTimPhien.phien;
 
-    sheetPhienHoc
-      .getRange(phien.soDong, 6)
-      .setNumberFormat("dd/MM/yyyy HH:mm:ss")
-      .setValue(thoiGian);
+    sheetPhienHoc.getRange(phien.soDong, 6)
+        .setNumberFormat("dd/MM/yyyy HH:mm:ss")
+        .setValue(thoiGian);
 
-    sheetPhienHoc
-      .getRange(phien.soDong, 7)
-      .setValue(TRANG_THAI.DA_DONG);
+    sheetPhienHoc.getRange(phien.soDong, 7).setValue(TRANG_THAI.DA_DONG);
 
     SpreadsheetApp.flush();
     capNhatDanhSachDashboard(ss);
 
-    return taoPhanHoiGiaoVien(
-      giaoVien,
-      phien.maBuoi,
-      TRANG_THAI.PHIEN_DA_DONG,
-      false
-    );
+    return taoPhanHoiGiaoVien(giaoVien, phien.maBuoi, TRANG_THAI.PHIEN_DA_DONG, false);
   }
 
-  const maBuoi = taoMaBuoi(
-    ss,
-    sheetPhienHoc,
-    thoiGian
-  );
+  const maBuoi = taoMaBuoi(ss, sheetPhienHoc, thoiGian);
   const dongMoi = sheetPhienHoc.getLastRow() + 1;
   const vungMoi = sheetPhienHoc.getRange(dongMoi, 1, 1, 7);
 
   vungMoi.setNumberFormat("@");
-  sheetPhienHoc
-    .getRange(dongMoi, 5, 1, 2)
-    .setNumberFormat("dd/MM/yyyy HH:mm:ss");
+  sheetPhienHoc.getRange(dongMoi, 5, 1, 2).setNumberFormat("dd/MM/yyyy HH:mm:ss");
 
-  vungMoi.setValues([[
-    maBuoi,
-    giaoVien.uidLuu,
-    giaoVien.maGV,
-    giaoVien.hoTen,
-    thoiGian,
-    "",
-    TRANG_THAI.DANG_MO
-  ]]);
+  vungMoi.setValues(
+      [[maBuoi, giaoVien.uidLuu, giaoVien.maGV, giaoVien.hoTen, thoiGian, "", TRANG_THAI.DANG_MO]]);
 
   SpreadsheetApp.flush();
   capNhatDanhSachDashboard(ss);
 
-  return taoPhanHoiGiaoVien(
-    giaoVien,
-    maBuoi,
-    TRANG_THAI.PHIEN_DA_MO,
-    true
-  );
+  return taoPhanHoiGiaoVien(giaoVien, maBuoi, TRANG_THAI.PHIEN_DA_MO, true);
 }
 
 
-function taoPhanHoiGiaoVien(
-  giaoVien,
-  maBuoi,
-  trangThai,
-  phienDangMo
-) {
+function taoPhanHoiGiaoVien(giaoVien, maBuoi, trangThai, phienDangMo) {
   return {
     success: true,
     status: trangThai,
@@ -669,82 +471,42 @@ function taoPhanHoiGiaoVien(
 }
 
 
-function xuLyTheSinhVien(
-  ss,
-  sheetPhienHoc,
-  sheetDiemDanh,
-  sinhVien
-) {
+function xuLyTheSinhVien(ss, sheetPhienHoc, sheetDiemDanh, sinhVien) {
   const ketQuaTimPhien = timPhienDangMo(sheetPhienHoc);
 
   if (ketQuaTimPhien.loi != "") {
-    return {
-      success: false,
-      status: TRANG_THAI.LOI_APPS_SCRIPT,
-      message: ketQuaTimPhien.loi
-    };
+    return {success: false, status: TRANG_THAI.LOI_APPS_SCRIPT, message: ketQuaTimPhien.loi};
   }
 
   if (ketQuaTimPhien.phien == null) {
-    return taoPhanHoiSinhVien(
-      sinhVien,
-      TRANG_THAI.PHIEN_CHUA_MO,
-      "",
-      false
-    );
+    return taoPhanHoiSinhVien(sinhVien, TRANG_THAI.PHIEN_CHUA_MO, "", false);
   }
 
   const maBuoi = ketQuaTimPhien.phien.maBuoi;
 
-  if (daDiemDanhTrongPhien(
-    sheetDiemDanh,
-    sinhVien.uid,
-    maBuoi
-  )) {
-    return taoPhanHoiSinhVien(
-      sinhVien,
-      TRANG_THAI.DA_DIEM_DANH,
-      maBuoi,
-      false
-    );
+  if (daDiemDanhTrongPhien(sheetDiemDanh, sinhVien.uid, maBuoi)) {
+    return taoPhanHoiSinhVien(sinhVien, TRANG_THAI.DA_DIEM_DANH, maBuoi, false);
   }
 
   const dongMoi = sheetDiemDanh.getLastRow() + 1;
   const vungMoi = sheetDiemDanh.getRange(dongMoi, 1, 1, 7);
 
   vungMoi.setNumberFormat("@");
-  sheetDiemDanh
-    .getRange(dongMoi, 1)
-    .setNumberFormat("dd/MM/yyyy HH:mm:ss");
+  sheetDiemDanh.getRange(dongMoi, 1).setNumberFormat("dd/MM/yyyy HH:mm:ss");
 
   vungMoi.setValues([[
-    new Date(),
-    sinhVien.uidLuu,
-    sinhVien.mssv,
-    sinhVien.hoTen,
-    sinhVien.lop,
-    TRANG_THAI.DIEM_DANH_THANH_CONG,
-    maBuoi
+    new Date(), sinhVien.uidLuu, sinhVien.mssv, sinhVien.hoTen, sinhVien.lop,
+    TRANG_THAI.DIEM_DANH_THANH_CONG, maBuoi
   ]]);
 
   SpreadsheetApp.flush();
   capNhatDanhSachDashboard(ss);
 
-  return taoPhanHoiSinhVien(
-    sinhVien,
-    TRANG_THAI.DIEM_DANH_THANH_CONG,
-    maBuoi,
-    true
-  );
+  return taoPhanHoiSinhVien(sinhVien, TRANG_THAI.DIEM_DANH_THANH_CONG, maBuoi, true);
 }
 
 
-function taoPhanHoiSinhVien(
-  sinhVien,
-  trangThai,
-  maBuoi,
-  thanhCong
-) {
+function taoPhanHoiSinhVien(sinhVien, trangThai, maBuoi, thanhCong) {
   return {
     success: thanhCong,
     status: trangThai,
@@ -759,18 +521,13 @@ function taoPhanHoiSinhVien(
 
 function timPhienDangMo(sheetPhienHoc) {
   const dongCuoi = sheetPhienHoc.getLastRow();
-  const ketQua = {
-    phien: null,
-    loi: ""
-  };
+  const ketQua = {phien: null, loi: ""};
 
   if (dongCuoi < 2) {
     return ketQua;
   }
 
-  const duLieu = sheetPhienHoc
-    .getRange(2, 1, dongCuoi - 1, 7)
-    .getDisplayValues();
+  const duLieu = sheetPhienHoc.getRange(2, 1, dongCuoi - 1, 7).getDisplayValues();
 
   for (let i = 0; i < duLieu.length; i++) {
     const trangThai = String(duLieu[i][6]).trim().toUpperCase();
@@ -792,10 +549,7 @@ function timPhienDangMo(sheetPhienHoc) {
     };
   }
 
-  if (
-    ketQua.phien != null
-    && ketQua.phien.maBuoi == ""
-  ) {
+  if (ketQua.phien != null && ketQua.phien.maBuoi == "") {
     ketQua.phien = null;
     ketQua.loi = "Phien DANG_MO dang bi thieu MaBuoi";
   }
@@ -804,26 +558,17 @@ function timPhienDangMo(sheetPhienHoc) {
 }
 
 
-function daDiemDanhTrongPhien(
-  sheetDiemDanh,
-  uid,
-  maBuoi
-) {
+function daDiemDanhTrongPhien(sheetDiemDanh, uid, maBuoi) {
   const dongCuoi = sheetDiemDanh.getLastRow();
 
   if (dongCuoi < 2) {
     return false;
   }
 
-  const duLieu = sheetDiemDanh
-    .getRange(2, 1, dongCuoi - 1, 7)
-    .getDisplayValues();
+  const duLieu = sheetDiemDanh.getRange(2, 1, dongCuoi - 1, 7).getDisplayValues();
 
   for (let i = 0; i < duLieu.length; i++) {
-    if (
-      chuanHoaUID(duLieu[i][1]) == uid
-      && String(duLieu[i][6]).trim() == maBuoi
-    ) {
+    if (chuanHoaUID(duLieu[i][1]) == uid && String(duLieu[i][6]).trim() == maBuoi) {
       return true;
     }
   }
@@ -833,38 +578,21 @@ function daDiemDanhTrongPhien(
 
 
 function taoMaBuoi(ss, sheetPhienHoc, thoiGian) {
-  const muiGio = (
-    ss.getSpreadsheetTimeZone()
-    || Session.getScriptTimeZone()
-    || "Asia/Ho_Chi_Minh"
-  );
-  const ngay = Utilities.formatDate(
-    thoiGian,
-    muiGio,
-    "yyMMdd"
-  );
+  const muiGio = (ss.getSpreadsheetTimeZone() || Session.getScriptTimeZone() || "Asia/Ho_Chi_Minh");
+  const ngay = Utilities.formatDate(thoiGian, muiGio, "yyMMdd");
   const tienTo = "B" + ngay + "-";
   const dongCuoi = sheetPhienHoc.getLastRow();
   let soThuTuLonNhat = 0;
 
   if (dongCuoi >= 2) {
-    const danhSachMaBuoi = sheetPhienHoc
-      .getRange(2, 1, dongCuoi - 1, 1)
-      .getDisplayValues();
-    const mauMaBuoi = new RegExp(
-      "^" + tienTo + "([0-9]+)$"
-    );
+    const danhSachMaBuoi = sheetPhienHoc.getRange(2, 1, dongCuoi - 1, 1).getDisplayValues();
+    const mauMaBuoi = new RegExp("^" + tienTo + "([0-9]+)$");
 
     for (let i = 0; i < danhSachMaBuoi.length; i++) {
-      const ketQua = String(danhSachMaBuoi[i][0])
-        .trim()
-        .match(mauMaBuoi);
+      const ketQua = String(danhSachMaBuoi[i][0]).trim().match(mauMaBuoi);
 
       if (ketQua != null) {
-        soThuTuLonNhat = Math.max(
-          soThuTuLonNhat,
-          Number(ketQua[1])
-        );
+        soThuTuLonNhat = Math.max(soThuTuLonNhat, Number(ketQua[1]));
       }
     }
   }
@@ -880,9 +608,7 @@ function taoMaBuoi(ss, sheetPhienHoc, thoiGian) {
 
 
 function layPhanHoiGiaoVienGanNhat(uid) {
-  const giaTri = PropertiesService
-    .getScriptProperties()
-    .getProperty(KHOA_QUET_GIAO_VIEN_GAN_NHAT);
+  const giaTri = PropertiesService.getScriptProperties().getProperty(KHOA_QUET_GIAO_VIEN_GAN_NHAT);
 
   if (giaTri == null || giaTri == "") {
     return null;
@@ -892,12 +618,8 @@ function layPhanHoiGiaoVienGanNhat(uid) {
     const duLieu = JSON.parse(giaTri);
     const doTre = Date.now() - Number(duLieu.thoiGian);
 
-    if (
-      duLieu.uid == uid
-      && doTre >= 0
-      && doTre < THOI_GIAN_CHONG_QUET_LAP_GV_MS
-      && duLieu.phanHoi
-    ) {
+    if (duLieu.uid == uid && doTre >= 0 && doTre < THOI_GIAN_CHONG_QUET_LAP_GV_MS &&
+        duLieu.phanHoi) {
       return duLieu.phanHoi;
     }
   } catch (loi) {
@@ -909,23 +631,14 @@ function layPhanHoiGiaoVienGanNhat(uid) {
 
 
 function luuPhanHoiGiaoVienGanNhat(uid, phanHoi) {
-  PropertiesService
-    .getScriptProperties()
-    .setProperty(
+  PropertiesService.getScriptProperties().setProperty(
       KHOA_QUET_GIAO_VIEN_GAN_NHAT,
-      JSON.stringify({
-        uid: uid,
-        thoiGian: Date.now(),
-        phanHoi: phanHoi
-      })
-    );
+      JSON.stringify({uid: uid, thoiGian: Date.now(), phanHoi: phanHoi}));
 }
 
 
 function chuanHoaUID(uid) {
-  return String(uid || "")
-    .replace(/[^0-9a-fA-F]/g, "")
-    .toUpperCase();
+  return String(uid || "").replace(/[^0-9a-fA-F]/g, "").toUpperCase();
 }
 
 
@@ -939,7 +652,6 @@ function layThongBaoLoi(loi) {
 
 
 function traJSON(duLieu) {
-  return ContentService
-    .createTextOutput(JSON.stringify(duLieu))
-    .setMimeType(ContentService.MimeType.JSON);
+  return ContentService.createTextOutput(JSON.stringify(duLieu))
+      .setMimeType(ContentService.MimeType.JSON);
 }

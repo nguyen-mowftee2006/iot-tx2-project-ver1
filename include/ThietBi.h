@@ -17,12 +17,7 @@ void moCua();
 bool capNhatCua();
 
 // Phát âm báo theo thông số
-void keuBuzzer(
-  int soLan,
-  int tanSo,
-  int thoiGianKeu,
-  int khoangNghi
-);
+void keuBuzzer(int soLan, int tanSo, int thoiGianKeu, int khoangNghi);
 
 // Âm báo điểm danh thành công
 void keuThanhCong();
