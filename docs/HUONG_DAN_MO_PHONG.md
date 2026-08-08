@@ -40,7 +40,7 @@ Dự án nhập môn IoT dùng ESP32 đọc thẻ RFID, gửi UID qua relay Pyth
 
 ## Thẻ giáo viên
 
-Thẻ giáo viên dùng preset **NFC Tag** màu xám đậm của đầu đọc RC522 trên Wokwi:
+Thẻ giáo viên dùng preset **Thẻ rỗng** của đầu đọc RC522 trên Wokwi:
 
 - UID: `04:11:22:33:44:55:66`
 - Phím chọn thẻ: `N`

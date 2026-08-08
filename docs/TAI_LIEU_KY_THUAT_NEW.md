@@ -11,7 +11,7 @@
 
 ### 1.1. Bài toán
 
-Hệ thống sử dụng UID của thẻ RFID/NFC để nhận diện giáo viên và sinh viên. Giáo viên quét thẻ để mở hoặc đóng một phiên học. Trong thời gian phiên mở, sinh viên quét thẻ để ghi nhận điểm danh. Kết quả được lưu trong Google Sheets và phản hồi tại thiết bị thông qua OLED, buzzer và relay mô phỏng cửa.
+Hệ thống sử dụng UID của thẻ RFID để nhận diện giáo viên và sinh viên. Giáo viên quét thẻ để mở hoặc đóng một phiên học. Trong thời gian phiên mở, sinh viên quét thẻ để ghi nhận điểm danh. Kết quả được lưu trong Google Sheets và phản hồi tại thiết bị thông qua OLED, buzzer và relay mô phỏng cửa.
 
 ### 1.2. Mục tiêu chức năng
 
@@ -39,7 +39,7 @@ Phần chưa được kiểm thử gồm mạch điện thật, nguồn khóa đ
 
 ```mermaid
 flowchart LR
-    CARD[Thẻ RFID/NFC] -->|RFID 13,56 MHz| RC522[MFRC522]
+    CARD[Thẻ RFID] -->|RFID 13,56 MHz| RC522[MFRC522]
     RC522 -->|SPI| ESP[ESP32 trên Wokwi]
     ESP -->|HTTP GET nội bộ| RELAY[relay.py trên máy tính]
     RELAY -->|HTTPS GET| GAS[Google Apps Script Web App]
@@ -55,7 +55,7 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    CARD[Thẻ RFID/NFC] --> RC522[MFRC522]
+    CARD[Thẻ RFID] --> RC522[MFRC522]
     RC522 -->|SPI| ESP[ESP32 thật]
     ESP -->|Wi-Fi + HTTPS| GAS[Google Apps Script]
     GAS <-->|Đọc và ghi| SHEETS[(Google Sheets)]
@@ -203,7 +203,7 @@ flowchart TD
     E -- Có --> G{Đọc được UID?}
     G -- Không --> F
     G -- Có --> H[Ghép UID dạng HEX chữ hoa]
-    H --> I[Khôi phục UID NFC riêng cho Wokwi nếu cần]
+    H --> I[Khôi phục UID Thẻ rỗng riêng cho Wokwi nếu cần]
     I --> J[Dừng giao tiếp với thẻ]
     J --> K{Trùng UID trong thời gian chống lặp?}
     K -- Có --> L[Cập nhật mốc thời gian và bỏ qua]
@@ -229,7 +229,7 @@ Byte thẻ: 04 11 22 33 44 55 66
 UID gửi:  04112233445566
 ```
 
-Firmware có workaround mô phỏng: nếu MFRC522 Wokwi chỉ trả `04112233` cho preset NFC xám, UID được đổi thành `04112233445566`. Quy tắc này không dùng cho phần cứng thật.
+Firmware có workaround mô phỏng: nếu MFRC522 Wokwi chỉ trả `04112233` cho preset Thẻ rỗng, UID được đổi thành `04112233445566`. Quy tắc này không dùng cho phần cứng thật.
 
 ### 5.5. Thuật toán kết nối Wi-Fi
 

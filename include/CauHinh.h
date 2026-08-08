@@ -15,11 +15,11 @@ constexpr uint8_t SPI_MOSI_PIN = 23;
 // Thời gian tránh đọc lại cùng một thẻ
 constexpr uint16_t TRE_DOC_LAI_THE = 1000;
 
-// Wokwi hien thi the NFC xam voi UID 7 byte, nhung mot so phien ban
+// Wokwi hien thi The rong voi UID 7 byte, nhung mot so phien ban
 // mo phong MFRC522 chi tra ve 4 byte dau. Hai gia tri nay giup khoi phuc
 // dung UID cua the truoc khi gui len API.
-constexpr char UID_NFC_WOKWI_RUT_GON[] = "04112233";
-constexpr char UID_NFC_WOKWI_DAY_DU[] = "04112233445566";
+constexpr char UID_THE_RONG_WOKWI_RUT_GON[] = "04112233";
+constexpr char UID_THE_RONG_WOKWI_DAY_DU[] = "04112233445566";
 
 // ==================== OLED SSD1306 ====================
 

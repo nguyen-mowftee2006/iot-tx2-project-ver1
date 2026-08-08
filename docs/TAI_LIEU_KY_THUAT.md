@@ -14,7 +14,7 @@
 
 ### 1.1. Mục tiêu
 
-Dự án xây dựng hệ thống điểm danh bằng thẻ RFID/NFC với các chức năng:
+Dự án xây dựng hệ thống điểm danh bằng thẻ RFID với các chức năng:
 
 - Giáo viên dùng thẻ riêng để mở hoặc đóng phiên điểm danh.
 - Sinh viên quét thẻ trong lúc phiên đang mở.
@@ -53,7 +53,7 @@ MATLAB và Cisco Packet Tracer không được sử dụng. Trong phạm vi bài
 
 ```mermaid
 flowchart LR
-    CARD[Thẻ RFID/NFC] -->|RFID 13,56 MHz| RC522[MFRC522]
+    CARD[Thẻ RFID] -->|RFID 13,56 MHz| RC522[MFRC522]
     RC522 -->|SPI| ESP32[ESP32 DevKit-C V4]
     ESP32 -->|Wi-Fi 2,4 GHz| AP[Router / Access Point]
     AP --> NET[Internet]
@@ -73,7 +73,7 @@ flowchart LR
 
 | Khối | Vai trò |
 | --- | --- |
-| Thẻ RFID/NFC | Mang UID đại diện cho sinh viên hoặc giáo viên |
+| Thẻ RFID | Mang UID đại diện cho sinh viên hoặc giáo viên |
 | MFRC522 | Đọc UID và truyền dữ liệu cho ESP32 qua SPI |
 | ESP32 | Điều khiển trung tâm, gửi yêu cầu và xử lý phản hồi |
 | Router/Access Point | Cung cấp kết nối Wi-Fi và Internet |
@@ -104,8 +104,8 @@ UID được dùng để tra cứu người dùng. Apps Script, không phải ES
 | STT | Thiết bị | Số lượng | Chức năng |
 | ---: | --- | ---: | --- |
 | 1 | ESP32 DevKit-C V4 | 1 | Vi điều khiển trung tâm có Wi-Fi |
-| 2 | MFRC522 | 1 | Đọc thẻ RFID/NFC 13,56 MHz |
-| 3 | Thẻ RFID/NFC | Nhiều | Đại diện giáo viên và sinh viên |
+| 2 | MFRC522 | 1 | Đọc thẻ RFID 13,56 MHz |
+| 3 | Thẻ RFID | Nhiều | Đại diện giáo viên và sinh viên |
 | 4 | OLED SSD1306 128 × 64 | 1 | Hiển thị trạng thái |
 | 5 | Buzzer | 1 | Báo âm thanh |
 | 6 | Relay tương thích logic ESP32 | 1 | Điều khiển tải hoặc khóa |
@@ -282,7 +282,7 @@ Nếu Wi-Fi hoặc API lỗi, firmware đóng relay, hiển thị lỗi và phá
 
 Firmware phát hiện thẻ mới, đọc từng byte UID, chuyển sang hexadecimal chữ hoa và loại bỏ dấu cách/dấu hai chấm trước khi gửi. Cùng một UID xuất hiện lại trong vòng 1000 ms sẽ bị bỏ qua ở firmware.
 
-Preset NFC xám của Wokwi có UID `04:11:22:33:44:55:66`. Do một trường hợp mô phỏng chỉ trả bốn byte `04112233`, firmware có workaround khôi phục thành `04112233445566`. Cách xử lý này chỉ dành cho Wokwi, không dùng để nhận diện thẻ thật.
+Preset Thẻ rỗng của Wokwi có UID `04:11:22:33:44:55:66`. Do một trường hợp mô phỏng chỉ trả bốn byte `04112233`, firmware có workaround khôi phục thành `04112233445566`. Cách xử lý này chỉ dành cho Wokwi, không dùng để nhận diện thẻ thật.
 
 ### 6.3. Giáo viên mở và đóng phiên
 
@@ -439,7 +439,7 @@ Sau đó:
 1. Start Simulation trong Wokwi.
 2. Chờ ESP32 khởi tạo và kết nối `Wokwi-GUEST`.
 3. Chọn thẻ trong bảng MFRC522 rồi nhấn **TAP**.
-4. Với NFC Tag giáo viên màu xám, dùng `N` để chọn và `T` để quét.
+4. Với Thẻ rỗng của giáo viên, dùng `N` để chọn và `T` để quét.
 5. Theo dõi Serial Monitor, OLED, LED cửa và Google Sheets.
 
 `wokwi.toml` sử dụng:
@@ -504,7 +504,7 @@ Do đó không được kết luận hệ thống phần cứng thật đã ho�
 
 | Lỗi/hiện tượng | Nguyên nhân | Cách xử lý hiện tại |
 | --- | --- | --- |
-| Thẻ NFC xám trả UID bốn byte | Khác biệt của mô phỏng MFRC522 | Khôi phục riêng `04112233` thành UID bảy byte đã biết |
+| Thẻ rỗng trả UID bốn byte | Khác biệt của mô phỏng MFRC522 | Khôi phục riêng `04112233` thành UID bảy byte đã biết |
 | Một lần quét giáo viên có thể đảo trạng thái nhanh | Thẻ bị đọc lặp | Firmware chống lặp 1 giây; Apps Script lưu phản hồi 3 giây |
 | Cảnh báo `LEDC is not initialized` | Gắn buzzer trước khi cấu hình LEDC | Gọi `ledcSetup()` trước `ledcAttachPin()` |
 | Công thức `FILTER` Dashboard từng báo `#ERROR!` | Phụ thuộc công thức/locale Sheet | `Code.gs` chép dữ liệu phù hợp trực tiếp vào `A9:F...` |
